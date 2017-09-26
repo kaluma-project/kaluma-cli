@@ -1,0 +1,12 @@
+{
+  "name": "kameleon-cli",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Minkyu Lee",
+  "engines": {
+    "node": "6.9.4"
+  },
+  "dependencies": {
+    "serialport": "^4.0.7"
+  }
+}

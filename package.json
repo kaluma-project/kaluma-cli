@@ -3,10 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "author": "Minkyu Lee",
+  "license": "MIT",
+  "main": "bin/kameleon.js",
   "engines": {
     "node": "6.9.4"
   },
   "dependencies": {
+    "commander": "2.11.0",
     "serialport": "^4.0.7"
+  },
+  "preferGlobal": true,
+  "bin": {
+    "kameleon": "bin/kameleon.js"
   }
 }

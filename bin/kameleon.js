@@ -33,6 +33,15 @@ program
   });
 
 program
+  .command('get <file>')
+  .description('get a file from Kameleon')
+  .option("-p, --port <port>", "Port where Kameleon is connected")
+  .action(function (options) {
+    console.log('Get a file...');
+    console.log(options.port);
+  });
+
+program
   .command('remove <file>')
   .alias('rm')
   .description('remove a file in Kameleon')

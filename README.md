@@ -2,24 +2,21 @@
 
 ## Installation
 
-```
+```bsh
 $ npm install -g kameleon-cli
 ```
 
 ## Usage
 
-### File copy
-
-```
-$ kameleon cp <file> [dest] -p <port>
+```bsh
+$ kameleon flash <file> -p <port>
 ```
 
 * `<file>` : Path to the file to copy.
-* `[dest]` : _(Optional)_ Destination path in Kameleon. Default to `/usr`.
-* `-p, --port <port>` : Port name where Kameleon is connected. (e.g. `-p /dev/cu.usbmodem1`)
+* `-p, --port <port>` : Port name where Kameleon is connected. (e.g. `-p /dev/tty.usbmodem1441`)
 
 __Example__:
 
-```
-$ kameleon cp index.js -p /dev/cu.usbmodem1
+```bsh
+$ kameleon flash index.js -p /dev/tty.usbmodem1441
 ```

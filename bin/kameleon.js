@@ -8,47 +8,16 @@ program
   .version('0.1.0');
 
 program
-  .command('copy <file> [dest]')
-  .alias('cp')
-  .description('copy a file to Kameleon')
-  .option("-p, --port <port>", "Port where Kameleon is connected")
-  .action(function (file, dest, options) {
-    console.log('Copying a file...');
+  .command('flash <file>')
+  .description('Flash a file to Kameleon')
+  .option("-p, --port <port>", "Port where the file is transmitted")
+  .action(function (file, options) {
+    console.log('Flashing a file...');
     var base = path.basename(file);
     var port = options.port;
-    var dest = path.join(dest || '/usr', base);
-    protocol.copy(port, file, dest, function (err) {
-      console.log(`File copied: ${file} to ${dest}.`);
+    protocol.flash(port, file, function (err) {
+      console.log(`Flashed successfully: ${file}.`);
     });
-  });
-
-program
-  .command('list')
-  .alias('ls')
-  .description('list all files in Kameleon')
-  .option("-p, --port <port>", "Port where Kameleon is connected")
-  .action(function (options) {
-    console.log('list files...');
-    console.log(options.port);
-  });
-
-program
-  .command('get <file>')
-  .description('get a file from Kameleon')
-  .option("-p, --port <port>", "Port where Kameleon is connected")
-  .action(function (options) {
-    console.log('Get a file...');
-    console.log(options.port);
-  });
-
-program
-  .command('remove <file>')
-  .alias('rm')
-  .description('remove a file in Kameleon')
-  .option("-p, --port <port>", "Port where Kameleon is connected")
-  .action(function (file, options) {
-    console.log('remove a file...');
-    console.log(options.port);
   });
 
 program.parse(process.argv);

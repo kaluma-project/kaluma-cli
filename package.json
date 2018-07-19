@@ -5,13 +5,21 @@
   "author": "Minkyu Lee",
   "license": "MIT",
   "main": "bin/kameleon.js",
-  "dependencies": {
-    "commander": "2.11.0",
-    "serialport": "^6.0.5",
-    "system-sleep": "^1.3.6"
-  },
   "preferGlobal": true,
   "bin": {
     "kameleon": "bin/kameleon.js"
+  },
+  "dependencies": {
+    "commander": "2.11.0",
+    "serialport": "6.2.1",
+    "system-sleep": "1.3.6"
+  },
+  "devDependencies": {
+    "eslint": "^5.1.0",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-promise": "^3.8.0",
+    "eslint-plugin-standard": "^3.1.0"
   }
 }

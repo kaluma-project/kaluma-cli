@@ -8,29 +8,29 @@ program
   .version('0.1.0')
 
 program
-  .command('flash <file>')
-  .description('Flash a file to Kameleon')
+  .command('write <file>')
+  .description('Write .js file to Kameleon')
   .option('-p, --port <port>', 'Port where device is connected')
   .action(function (file, options) {
-    console.log('Flashing a file...')
+    console.log('Writing a file...')
     // var base = path.basename(file)
     var port = options.port
-    protocol.flash(port, file, err => {
+    protocol.write(port, file, err => {
       if (err) {
         console.error(err)
       } else {
-        console.log(`Flashed successfully: ${file}.`)
+        console.log(`Written successfully: ${file}.`)
       }
     })
   })
 
 program
-  .command('firmware <file>')
+  .command('update <firmware>')
   .description('Update firmware to Kameleon')
   .option('-p, --port <port>', 'Port where device is connected')
-  .action(function (file, options) {
+  .action(function (firmware, options) {
     var port = options.port
-    protocol.firmware(port, file)
+    protocol.update(port, firmware)
   })
 
 program.parse(process.argv)

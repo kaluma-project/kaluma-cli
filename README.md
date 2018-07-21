@@ -15,10 +15,10 @@ $ kameleon -h
 ```
 
 
-### Flash .js source code
+### Write .js code
 
 ```sh
-$ kameleon flash <file> -p <port>
+$ kameleon write <file> -p <port>
 ```
 
 * `<file>` : Path to the file to copy.
@@ -27,21 +27,21 @@ $ kameleon flash <file> -p <port>
 __Example__:
 
 ```sh
-$ kameleon flash index.js -p /dev/tty.usbmodem1441
+$ kameleon write index.js -p /dev/tty.usbmodem1441
 ```
 
 ### Firmware update
 
 
 ```sh
-$ kameleon firmware <file> -p <port>
+$ kameleon update <firmware> -p <port>
 ```
 
-* `<file>` : Path to the firmware to update.
+* `<firmware>` : Path to the firmware to update.
 * `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
 
 __Example__:
 
-```sh
-$ kameleon firmware kameleon.bin -p /dev/tty.usbmodem1441
+```bsh
+$ kameleon update kameleon.bin -p /dev/tty.usbmodem1441
 ```

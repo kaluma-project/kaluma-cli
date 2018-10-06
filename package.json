@@ -1,11 +1,29 @@
 {
   "name": "kameleon-cli",
-  "version": "0.1.0",
+  "description": "Kameleon CLI (Command Line Interface)",
+  "version": "0.9.0",
   "private": true,
-  "author": "Minkyu Lee",
+  "author": {
+    "name": "Minkyu Lee",
+    "email": "niklaus.lee@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kameleon-project/kameleon-cli.git"    
+  },
+  "bugs": {
+    "url": "https://github.com/kameleon-project/kameleon-cli/issues"
+  },
+  "homepage": "https://github.com/kameleon-project/kameleon-cli",
   "license": "MIT",
   "main": "bin/kameleon.js",
   "preferGlobal": true,
+  "engines": {
+    "node": ">=6.9.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "bin": {
     "kameleon": "bin/kameleon.js"
   },

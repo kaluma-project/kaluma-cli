@@ -2,9 +2,11 @@
 
 var program = require('commander')
 var protocol = require('../lib/protocol')
+var config = require('../package.json')
 
 program
-  .version('0.1.0')
+  .version(config.version)
+  .option('-l, --list-ports', 'List serial ports')
 
 program
   .command('write <file>')
@@ -25,3 +27,7 @@ program
   })
 
 program.parse(process.argv)
+
+if (program.listPorts) {
+  protocol.list()
+}

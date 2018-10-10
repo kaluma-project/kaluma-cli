@@ -1,7 +1,7 @@
 {
   "name": "kameleon-cli",
   "description": "Kameleon CLI (Command Line Interface)",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "author": {
     "name": "Minkyu Lee",
     "email": "niklaus.lee@gmail.com"

@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-var program = require('commander')
-var protocol = require('../lib/protocol')
-var config = require('../package.json')
+const program = require('commander')
+const protocol = require('../lib/protocol')
+const config = require('../package.json')
+const sleep = require('system-sleep')
 
 program
   .version(config.version)
@@ -14,7 +15,11 @@ program
   .option('-p, --port <port>', 'Port where device is connected')
   .action(function (file, options) {
     var port = options.port
-    protocol.write(port, file)
+    protocol.write(port, file, () => {
+      setTimeout(() => {
+        protocol.send(port, '.load\r')
+      }, 100)
+    })
   })
 
 program

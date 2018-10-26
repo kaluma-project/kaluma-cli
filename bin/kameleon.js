@@ -6,32 +6,41 @@ const config = require('../package.json')
 
 program
   .version(config.version)
-  .option('-l, --list-ports', 'List serial ports')
+  .option('-l, --list-ports', 'list serial ports')
 
 program
   .command('write <file>')
-  .description('Write .js file to Kameleon')
-  .option('-p, --port <port>', 'Port where device is connected')
+  .description('write user code (.js file) to Kameleon')
+  .option('-p, --port <port>', 'port where device is connected')
   .action(function (file, options) {
     var port = options.port
-    protocol.write(port, file, (err) => {
-      if (err) {
-        console.log(err)
-      } else {
-        setTimeout(() => {
-          protocol.send(port, '.load\r')
-        }, 100)
-      }
-    })
+    protocol.write(port, file)
+  })
+
+program
+  .command('erase')
+  .description('erase user code in Kameleon')
+  .option('-p, --port <port>', 'port where device is connected')
+  .action(function (options) {
+    var port = options.port
+    protocol.erase(port)
   })
 
 program
   .command('update <firmware>')
-  .description('Update firmware to Kameleon')
-  .option('-p, --port <port>', 'Port where device is connected')
+  .description('update firmware to Kameleon')
+  .option('-p, --port <port>', 'port where device is connected')
   .action(function (firmware, options) {
     var port = options.port
-    protocol.update(port, firmware)
+    protocol.send(port, '.firmup', function (err) {
+      if (err) {
+        console.error(err)
+      } else {
+        setTimeout(() => {
+          protocol.update(port, firmware)
+        }, 500)
+      }
+    })
   })
 
 program.parse(process.argv)

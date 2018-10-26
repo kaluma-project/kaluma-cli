@@ -14,8 +14,7 @@ $ npm install -g kameleon-cli
 $ kameleon -h
 ```
 
-
-### Write .js code
+### Write user code (.js)
 
 ```sh
 $ kameleon write <file> -p <port>
@@ -28,6 +27,20 @@ __Example__:
 
 ```sh
 $ kameleon write index.js -p /dev/tty.usbmodem1441
+```
+
+### Erase user code
+
+```sh
+$ kameleon erase -p <port>
+```
+
+* `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
+
+__Example__:
+
+```sh
+$ kameleon erase -p /dev/tty.usbmodem1441
 ```
 
 ### Firmware update

@@ -3,7 +3,6 @@
 const program = require('commander')
 const protocol = require('../lib/protocol')
 const config = require('../package.json')
-const sleep = require('system-sleep')
 
 program
   .version(config.version)
@@ -15,10 +14,14 @@ program
   .option('-p, --port <port>', 'Port where device is connected')
   .action(function (file, options) {
     var port = options.port
-    protocol.write(port, file, () => {
-      setTimeout(() => {
-        protocol.send(port, '.load\r')
-      }, 100)
+    protocol.write(port, file, (err) => {
+      if (err) {
+        console.log(err)
+      } else {
+        setTimeout(() => {
+          protocol.send(port, '.load\r')
+        }, 100)
+      }
     })
   })
 

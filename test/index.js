@@ -1,5 +1,3 @@
-var led = board.led(0);
-pinMode(led, OUTPUT);
-var timer = setInterval(function () {
-  digitalToggle(led);
+setInterval(function () {
+  board.LED0.toggle()
 }, 1000);

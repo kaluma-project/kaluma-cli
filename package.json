@@ -1,7 +1,7 @@
 {
   "name": "kameleon-cli",
   "description": "Kameleon CLI (Command Line Interface)",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "author": {
     "name": "Minkyu Lee",
     "email": "niklaus.lee@gmail.com"
@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "commander": "2.11.0",
-    "crc16": "1.0.1",
+    "crc": "^3.8.0",
     "serialport": "6.2.1"
   },
   "devDependencies": {

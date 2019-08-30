@@ -80,6 +80,7 @@ program
       if (err) {
         console.error(err)
       } else {
+        serial.write('\r')
         protocol.send(serial, '.firmup', () => {
           // Serial port should be closed because the board is rebooted in bootloader mode
           if (serial.isOpen) {

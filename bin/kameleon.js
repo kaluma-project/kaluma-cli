@@ -12,6 +12,51 @@ const serialOptions = {
   baudRate: 115200
 }
 
+function tryOpen (serial, interval, callback) {
+  setTimeout(() => {
+    serial.open(err => { /* 1st try */
+      if (err) {
+        setTimeout(() => {
+          serial.open(err => { /*2nd try */
+            if (err) {
+              setTimeout(() => {
+                serial.open(err => { /* 3rd try */
+                  if (err) {
+                    setTimeout(() => {
+                      serial.open(err => { /* 4th try */
+                        if (err) {
+                          setTimeout(() => {
+                            serial.open(err => { /* 5th try */
+                              if (err) {
+                                callback(err)
+                              } else {
+                                callback(null, serial)
+                              }
+                            })
+                          }, interval)
+                        } else {
+                          callback(null, serial)
+                        }
+                      })
+                    }, interval)
+                  } else {
+                    callback(null, serial)
+                  }
+                })
+              }, interval)
+            } else {
+              callback(null, serial)
+            }
+          })
+        }, interval)
+      } else {
+        callback(null, serial)
+      }
+    })  
+  }, interval)
+}
+
+
 program
   .version(config.version)
   .option('-l, --list-ports', 'list serial ports')
@@ -86,42 +131,41 @@ program
           if (serial.isOpen) {
             serial.close()
           }
-          // Need long time (3sec) to re-identify serial port after disconnection
-          setTimeout(() => {
-            console.log('Updating firmware...')
-            var checkPoint = 1024 * 32
-            var buffer = fs.readFileSync(firmware)
-            const serial2 = new SerialPort(port, serialOptions)
-            serial2.open(err => {
-              if (err) {
-                console.error(err)
-              } else {
-                protocol.update(serial2, buffer, (err, result) => {
-                  if (err) {
-                    console.error(err)
-                  } else {
-                    console.log(`Firmware is successfully updated (${firmware} : ${result.writtenBytes} bytes)`)
-                    // Close the serial after firmware update complete
-                    setTimeout(() => {
-                      if (serial2.isOpen) {
-                        serial2.close()
-                      }
-                    }, 500)
-                  }
-                }, function (progress) {
-                  if (progress.writtenBytes >= checkPoint) {
-                    var kb = Math.floor(progress.writtenBytes / 1024)
-                    var percent = Math.floor((progress.writtenBytes / progress.totalBytes) * 100)
-                    console.log(kb + 'KB uploaded (' + percent + '%)')
-                    checkPoint = checkPoint + 1024 * 32
-                    if (checkPoint > progress.totalBytes) {
-                      checkPoint = progress.totalBytes
+          console.log('Changing to firmware update mode...')
+          var checkPoint = 1024 * 32
+          var buffer = fs.readFileSync(firmware)
+          const serial2 = new SerialPort(port, serialOptions)
+          // Try to open serial multiple times
+          tryOpen(serial2, 2000, (err, serial2) => {
+            if (err) {
+              console.error(err)
+            } else {
+              console.log('Updating firmware...')
+              protocol.update(serial2, buffer, (err, result) => {
+                if (err) {
+                  console.error(err)
+                } else {
+                  console.log(`Firmware is successfully updated (${firmware} : ${result.writtenBytes} bytes)`)
+                  // Close the serial after firmware update complete
+                  setTimeout(() => {
+                    if (serial2.isOpen) {
+                      serial2.close()
                     }
+                  }, 500)
+                }
+              }, function (progress) {
+                if (progress.writtenBytes >= checkPoint) {
+                  var kb = Math.floor(progress.writtenBytes / 1024)
+                  var percent = Math.floor((progress.writtenBytes / progress.totalBytes) * 100)
+                  console.log(kb + 'KB uploaded (' + percent + '%)')
+                  checkPoint = checkPoint + 1024 * 32
+                  if (checkPoint > progress.totalBytes) {
+                    checkPoint = progress.totalBytes
                   }
-                })
-              }
-            })
-          }, 3000)
+                }
+              })
+            }
+          })
         })
       }
     })

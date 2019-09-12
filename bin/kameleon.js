@@ -131,27 +131,29 @@ program
           if (serial.isOpen) {
             serial.close()
           }
-          console.log('Changing to firmware update mode...')
+          console.log('Rebooting in firmware update mode...')
           var checkPoint = 1024 * 32
           var buffer = fs.readFileSync(firmware)
           const serial2 = new SerialPort(port, serialOptions)
           // Try to open serial multiple times
-          tryOpen(serial2, 2000, (err, serial2) => {
+          tryOpen(serial2, 3000, (err, serial2) => {
             if (err) {
               console.error(err)
             } else {
               console.log('Updating firmware...')
+              serial2.on('data', data => {})
               protocol.update(serial2, buffer, (err, result) => {
                 if (err) {
                   console.error(err)
                 } else {
                   console.log(`Firmware is successfully updated (${firmware} : ${result.writtenBytes} bytes)`)
+                  console.log(`Press RESET to reboot.`)
                   // Close the serial after firmware update complete
                   setTimeout(() => {
                     if (serial2.isOpen) {
                       serial2.close()
                     }
-                  }, 500)
+                  }, 1000)
                 }
               }, function (progress) {
                 if (progress.writtenBytes >= checkPoint) {

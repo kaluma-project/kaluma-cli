@@ -2,7 +2,7 @@
 
 ## Installation
 
-```bsh
+```
 $ npm install -g kameleon-cli
 ```
 
@@ -10,13 +10,25 @@ $ npm install -g kameleon-cli
 
 ### Help
 
-```sh
+Print help for commands and options.
+
+```
 $ kameleon -h
+```
+
+### List available ports
+
+List all available serial ports.
+
+```
+$ kameleon -l
 ```
 
 ### Write user code (.js)
 
-```sh
+ Write user code to the specified port where Kameleon board connected.
+
+```
 $ kameleon write <file> -p <port>
 ```
 
@@ -25,13 +37,15 @@ $ kameleon write <file> -p <port>
 
 __Example__:
 
-```sh
+```
 $ kameleon write index.js -p /dev/tty.usbmodem1441
 ```
 
 ### Erase user code
 
-```sh
+Erase the user code written in the Kameleon board.
+
+```
 $ kameleon erase -p <port>
 ```
 
@@ -39,14 +53,15 @@ $ kameleon erase -p <port>
 
 __Example__:
 
-```sh
+```
 $ kameleon erase -p /dev/tty.usbmodem1441
 ```
 
 ### Firmware update
 
+Update firmware.
 
-```sh
+```
 $ kameleon update <firmware> -p <port>
 ```
 
@@ -55,6 +70,6 @@ $ kameleon update <firmware> -p <port>
 
 __Example__:
 
-```bsh
+```
 $ kameleon update kameleon.bin -p /dev/tty.usbmodem1441
 ```

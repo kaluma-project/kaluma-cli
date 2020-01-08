@@ -17,7 +17,7 @@ function tryOpen (serial, interval, callback) {
     serial.open(err => { /* 1st try */
       if (err) {
         setTimeout(() => {
-          serial.open(err => { /*2nd try */
+          serial.open(err => { /* 2nd try */
             if (err) {
               setTimeout(() => {
                 serial.open(err => { /* 3rd try */
@@ -52,10 +52,9 @@ function tryOpen (serial, interval, callback) {
       } else {
         callback(null, serial)
       }
-    })  
+    })
   }, interval)
 }
-
 
 program
   .version(config.version)
@@ -181,7 +180,10 @@ if (program.listPorts) {
       console.error(err)
     } else {
       ports.forEach(function (port) {
-        console.log(port.comName)
+        var s = port.comName
+        if (port.manufacturer) s += ` [${port.manufacturer}]`
+        if (port.serialNumber) s += ` (${port.serialNumber})`
+        console.log(s)
       })
     }
   })

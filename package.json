@@ -1,21 +1,18 @@
 {
-  "name": "kameleon-cli",
-  "description": "Kameleon CLI (Command Line Interface)",
-  "version": "0.9.11",
-  "author": {
-    "name": "Minkyu Lee",
-    "email": "niklaus.lee@gmail.com"
-  },
+  "name": "@kaluma/cli",
+  "description": "Kaluma CLI (Command Line Interface)",
+  "version": "0.9.12",
+  "author": "Minkyu Lee <niklaus.lee@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kameleon-project/kameleon-cli.git"
+    "url": "git+https://github.com/kaluma-project/kaluma-cli.git"
   },
   "bugs": {
-    "url": "https://github.com/kameleon-project/kameleon-cli/issues"
+    "url": "https://github.com/kaluma-project/kaluma-cli/issues"
   },
-  "homepage": "https://github.com/kameleon-project/kameleon-cli",
+  "homepage": "https://github.com/kaluma-project/kaluma-cli",
   "license": "MIT",
-  "main": "bin/kameleon.js",
+  "main": "bin/kaluma.js",
   "preferGlobal": true,
   "engines": {
     "node": ">=6.9.0"
@@ -24,12 +21,12 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "kameleon": "bin/kameleon.js"
+    "kaluma": "bin/kaluma.js"
   },
   "dependencies": {
-    "commander": "^2.20.0",
+    "commander": "^7.1.0",
     "crc": "^3.8.0",
-    "serialport": "^7.1.4"
+    "serialport": "^9.0.6"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
@@ -38,5 +35,9 @@
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
   }
 }

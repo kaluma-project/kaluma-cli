@@ -1,9 +1,9 @@
-# Kameleon CLI (Command Line Interface)
+# Kaluma CLI (Command Line Interface)
 
-## Installation
+## Install
 
 ```
-$ npm install -g kameleon-cli
+$ npm install -g @kaluma/cli
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ $ npm install -g kameleon-cli
 Print help for commands and options.
 
 ```
-$ kameleon -h
+$ kaluma -h
 ```
 
 ### List available ports
@@ -21,55 +21,38 @@ $ kameleon -h
 List all available serial ports.
 
 ```
-$ kameleon -l
+$ kaluma -l
 ```
 
-### Write user code (.js)
+### Write code (.js)
 
- Write user code to the specified port where Kameleon board connected.
+Write the user code to the specified port where a Kaluma board connected.
 
 ```
-$ kameleon write <file> -p <port>
+$ kaluma write <file> -p <port>
 ```
 
-* `<file>` : Path to the file to copy.
+* `<file>` : Path to the file to upload.
+* `-p, --port <port>` : Port where a device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
+
+__Example__:
+
+```
+$ kaluma write index.js -p /dev/tty.usbmodem1441
+```
+
+### Erase code
+
+Erase the user code stored in the Kaluma board.
+
+```
+$ kaluma erase -p <port>
+```
+
 * `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
 
 __Example__:
 
 ```
-$ kameleon write index.js -p /dev/tty.usbmodem1441
-```
-
-### Erase user code
-
-Erase the user code written in the Kameleon board.
-
-```
-$ kameleon erase -p <port>
-```
-
-* `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
-
-__Example__:
-
-```
-$ kameleon erase -p /dev/tty.usbmodem1441
-```
-
-### Firmware update
-
-Update firmware.
-
-```
-$ kameleon update <firmware> -p <port>
-```
-
-* `<firmware>` : Path to the firmware to update.
-* `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
-
-__Example__:
-
-```
-$ kameleon update kameleon.bin -p /dev/tty.usbmodem1441
+$ kaluma erase -p /dev/tty.usbmodem1441
 ```

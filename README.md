@@ -1,5 +1,7 @@
 # Kaluma CLI (Command Line Interface)
 
+Kaluma CLI is a command-line tool to write (or erase) a JavaScript file (.js) to a Kaluma-compatible boards.
+
 ## Install
 
 ```

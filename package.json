@@ -1,7 +1,7 @@
 {
   "name": "@kaluma/cli",
   "description": "Kaluma CLI (Command Line Interface)",
-  "version": "0.9.12",
+  "version": "0.9.13",
   "author": "Minkyu Lee <niklaus.lee@gmail.com>",
   "repository": {
     "type": "git",

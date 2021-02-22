@@ -23,7 +23,7 @@ $ kaluma -h
 List all available serial ports.
 
 ```
-$ kaluma -l
+$ kaluma list
 ```
 
 ### Write code (.js)

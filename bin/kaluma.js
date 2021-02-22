@@ -22,10 +22,8 @@ program
     SerialPort.list()
       .then(ports => {
         ports.forEach(function (port) {
-          console.log(port)
           var s = port.path
           if (port.manufacturer) s += ` [${port.manufacturer}]`
-          if (port.serialNumber) s += ` (${port.serialNumber})`
           console.log(s)
         })
       })

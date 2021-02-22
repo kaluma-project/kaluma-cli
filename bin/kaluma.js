@@ -2,7 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const program = require('commander')
+const { program } = require('commander')
 const protocol = require('../lib/protocol')
 const config = require('../package.json')
 const SerialPort = require('serialport')
@@ -12,59 +12,31 @@ const serialOptions = {
   baudRate: 115200
 }
 
-/*
-function tryOpen (serial, interval, callback) {
-  setTimeout(() => {
-    serial.open(err => { // 1st try
-      if (err) {
-        setTimeout(() => {
-          serial.open(err => { // 2nd try
-            if (err) {
-              setTimeout(() => {
-                serial.open(err => { // 3rd try
-                  if (err) {
-                    setTimeout(() => {
-                      serial.open(err => { // 4th try
-                        if (err) {
-                          setTimeout(() => {
-                            serial.open(err => { // 5th try
-                              if (err) {
-                                callback(err)
-                              } else {
-                                callback(null, serial)
-                              }
-                            })
-                          }, interval)
-                        } else {
-                          callback(null, serial)
-                        }
-                      })
-                    }, interval)
-                  } else {
-                    callback(null, serial)
-                  }
-                })
-              }, interval)
-            } else {
-              callback(null, serial)
-            }
-          })
-        }, interval)
-      } else {
-        callback(null, serial)
-      }
-    })
-  }, interval)
-}
-*/
-
 program
   .version(config.version)
-  .option('-l, --list-ports', 'list serial ports')
+
+program
+  .command('list')
+  .description('list available serial ports')
+  .action(function () {
+    SerialPort.list()
+      .then(ports => {
+        ports.forEach(function (port) {
+          console.log(port)
+          var s = port.path
+          if (port.manufacturer) s += ` [${port.manufacturer}]`
+          if (port.serialNumber) s += ` (${port.serialNumber})`
+          console.log(s)
+        })
+      })
+      .catch(err => {
+        console.error(err)
+      })
+  })
 
 program
   .command('write <file>')
-  .description('write user code (.js file) to a Kaluma board')
+  .description('write code (.js file) to a Kaluma board')
   .option('-p, --port <port>', 'port where device is connected')
   .action(function (file, options) {
     var port = options.port
@@ -98,7 +70,7 @@ program
 
 program
   .command('erase')
-  .description('erase user code in Kaluma board')
+  .description('erase code in Kaluma board')
   .option('-p, --port <port>', 'port where device is connected')
   .action(function (options) {
     var port = options.port
@@ -116,18 +88,3 @@ program
   })
 
 program.parse(process.argv)
-
-if (program.listPorts) {
-  SerialPort.list((err, ports) => {
-    if (err) {
-      console.error(err)
-    } else {
-      ports.forEach(function (port) {
-        var s = port.comName
-        if (port.manufacturer) s += ` [${port.manufacturer}]`
-        if (port.serialNumber) s += ` (${port.serialNumber})`
-        console.log(s)
-      })
-    }
-  })
-}

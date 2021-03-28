@@ -4,8 +4,11 @@ Kaluma CLI is a command-line tool to write (or erase) a JavaScript file (.js) to
 
 ## Install
 
-```
+```sh
 $ npm install -g @kaluma/cli
+
+# for Apple M1 or Raspberry Pi
+$ sudo npm install -g @kaluma/cli --unsafe-perm --build-from-source
 ```
 
 ## Usage

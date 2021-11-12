@@ -2,6 +2,8 @@
 
 Kaluma CLI is a command-line tool to write (or erase) a JavaScript file (.js) to a Kaluma-compatible boards.
 
+> You can only upload only a single .js file with CLI. If you want to upload multiple .js files, you need to bundle them into a single .js file using Webpack or other bundlers. Here is a [sample local project](https://github.com/kaluma-project/local-project-sample) showing how to setup a project in local with Webpack.
+
 ## Install
 
 ```sh

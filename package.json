@@ -24,9 +24,9 @@
     "kaluma": "bin/kaluma.js"
   },
   "dependencies": {
-    "commander": "^7.1.0",
+    "commander": "^8.3.0",
     "crc": "^3.8.0",
-    "serialport": "^9.0.6"
+    "serialport": "^9.2.8"
   },
   "devDependencies": {
     "eslint": "^5.16.0",

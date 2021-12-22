@@ -86,7 +86,7 @@ program
   })
 
 /*
-(function put(fn, fz, pz) {
+(function (fn, fz, pz) {
   var fs = require('fs');
   var i = process.stdin;
   var fd = fs.open(fn, 'w');
@@ -94,22 +94,37 @@ program
   while (fz > 0) {
     var bz = Math.min(fz, buf.length);
     var bl = bz;
-    var bi = 0;
     while (bl > 0) {
       var c = i.read();
       if (c) {
         buf.set(c, bi);
-        bi += c.length;
         bl -= c.length;
       }
     }
-    fs.write(fd, buf, 0, buf.length, bi);
-    process.stdout.write(new Uint8Array([0x06])); // ACK
+    fs.write(fd, buf);
+    // process.stdout.write(new Uint8Array([0x06])); // ACK
     fz -= bz;
   }
   fs.close(fd);
-})('test.txt', 10, 5);
+})
 */
+
+/*
+(function (fn, fz) {
+  var fs = require('fs');
+  var fd = fs.open(fn, 'w');
+  while (fz > 0) {
+    var c = process.stdin.read();
+    if (c) {
+      fs.write(fd, c);
+      fz -= c.length;
+    }
+  };
+  fs.close(fd);
+})
+*/
+
+const src = `(function(fn,fz){var fs=require('fs');var fd=fs.open(fn,'w');while(fz>0){var c=process.stdin.read();if(c){fs.write(fd,c);fz-=c.length}};fs.close(fd)})`
 
 program
   .command('test')
@@ -124,19 +139,22 @@ program
       } else {
         let data = ''
         // console.log('flowing', serial.readableFlowing)
-        serial.on('data', (chunk) => {
-          data += String.fromCharCode.apply(null, chunk)
-          // console.log(`chunk="${String.fromCharCode.apply(null, chunk)}"`)
-        })
         // console.log('flowing', serial.readableFlowing)
-        serial.write('\r')
-        serial.write('.echo off\r')
-        serial.write('(function(d){process.stdout.write(new Uint8Array([55, 66, 77, d]));})(65);\r')
-        serial.write('.echo on\r')
-        setTimeout(() => {
-          console.log(`data="${data}"`)
-          serial.close()
-        }, 1000)
+        serial.write('\r.echo off\r', () => {
+          // serial.on('data', (chunk) => {
+          //   data += String.fromCharCode.apply(null, chunk)
+          // })
+          serial.write(`${src}('f.txt', 10);\r`, () => {
+            setTimeout(() => {
+              serial.write('abcde12345', () => {
+                serial.write('\r.echo on\r', () => {
+                  console.log(`data="${data}"`)
+                  serial.close()
+                })
+              })
+            }, 100)
+          })
+        })
       }
     })
   })

@@ -26,10 +26,12 @@
   "dependencies": {
     "commander": "^8.3.0",
     "crc": "^3.8.0",
-    "serialport": "^9.2.8"
+    "serialport": "^9.2.8",
+    "uglify-js": "^3.14.5"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
+    "eslint-config-airbnb": "^19.0.2",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-node": "^8.0.1",

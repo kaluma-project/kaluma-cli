@@ -93,14 +93,12 @@ program
   .description("Copy a file from host to device")
   .option("-p, --port <port>", "port where device is connected")
   .action(function (src, dest, options) {
-    const fullPath = path.resolve(src);
-    if (!fs.existsSync(fullPath)) {
+    const srcPath = path.resolve(src);
+    if (!fs.existsSync(srcPath)) {
       console.log(`File not found: ${src}`);
       return;
     }
-    const filename = path.basename(fullPath);
-    const destPath = path.join(dest, filename);
-    const stat = fs.statSync(fullPath);
+    const stat = fs.statSync(srcPath);
     const port = options.port;
     const serial = new SerialPort(port, serialOptions);
     serial.open(async (err) => {
@@ -108,7 +106,7 @@ program
         console.error(err);
       } else {
         const bs = new BufferedSerial(serial);
-        await put(bs, fullPath, destPath, stat.size);
+        await put(bs, srcPath, dest, stat.size);
         serial.close();
       }
     });

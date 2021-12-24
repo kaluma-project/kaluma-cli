@@ -39,10 +39,10 @@ Write the user code to the specified port where a Kaluma board connected.
 $ kaluma write <file> -p <port>
 ```
 
-* `<file>` : Path to the file to upload.
-* `-p, --port <port>` : Port where a device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
+- `<file>` : Path to the file to upload.
+- `-p, --port <port>` : Port where a device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
 
-__Example__:
+**Example**:
 
 ```
 $ kaluma write index.js -p /dev/tty.usbmodem1441
@@ -56,10 +56,50 @@ Erase the user code stored in the Kaluma board.
 $ kaluma erase -p <port>
 ```
 
-* `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
+- `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
 
-__Example__:
+**Example**:
 
 ```
 $ kaluma erase -p /dev/tty.usbmodem1441
+```
+
+### Put file
+
+Copy a file from host computer to device.
+
+```
+$ kaluma put <src> <dest> -p <port>
+```
+
+- `<src>` A file path in host computer
+- `<dest>` A file path in device
+- `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
+
+**Example**:
+
+Copy `data.txt` file in host computer to the path `/dir1/data.txt` in device.
+
+```
+$ kaluma put host.txt /dir1/device.txt -p /dev/tty.usbmodem1441
+```
+
+### Put get
+
+Copy a file from device to host computer.
+
+```
+$ kaluma get <src> <dest> -p <port>
+```
+
+- `<src>` A file path in device
+- `<dest>` A file path in host computer
+- `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
+
+**Example**:
+
+Copy `data.txt` file in host computer to the path `/dir1/data.txt` in the device.
+
+```
+$ kaluma get /dir1/device.txt ./host.txt -p /dev/tty.usbmodem1441
 ```

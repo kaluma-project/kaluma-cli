@@ -7,6 +7,9 @@ const SerialPort = require("serialport");
 const protocol = require("../lib/protocol");
 const config = require("../package.json");
 const put = require("../lib/put");
+const get = require("../lib/get");
+const eval = require('../lib/eval');
+const { BufferedSerial } = require("../lib/buffered-serial");
 
 const serialOptions = {
   autoOpen: false,
@@ -104,7 +107,8 @@ program
       if (err) {
         console.error(err);
       } else {
-        await put(serial, fullPath, destPath, stat.size);
+        const bs = new BufferedSerial(serial);
+        await put(bs, fullPath, destPath, stat.size);
         serial.close();
       }
     });
@@ -115,12 +119,25 @@ program
   .description("Copy a file from device to host")
   .option("-p, --port <port>", "port where device is connected")
   .action(function (src, dest, options) {
-    console.log(src, dest, options);
-    // console.log(filePutCode);
-    // let min = UglifyJS.minify(filePutCode.trim(), { warnings: true });
-    // let min = minify();
-    // console.log(min);
-    // console.log(min.code.length);
+    const port = options.port;
+    const serial = new SerialPort(port, serialOptions);
+    serial.open(async (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        const bs = new BufferedSerial(serial);
+        const fun = `
+        function (fn) {
+          let fs = require('fs');
+          let stat = fs.stat(fn);
+          return stat.size;
+        }
+        `;
+        let fsize = await eval(bs, fun, src);
+        await get(bs, src, dest, fsize);
+        serial.close();
+      }
+    });
   });
 
 program.parse(process.argv);

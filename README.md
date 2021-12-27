@@ -84,7 +84,7 @@ Copy `data.txt` file in host computer to the path `/dir1/data.txt` in device.
 $ kaluma put host.txt /dir1/device.txt -p /dev/tty.usbmodem1441
 ```
 
-### Put get
+### Get file
 
 Copy a file from device to host computer.
 

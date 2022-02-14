@@ -7,6 +7,8 @@ const SerialPort = require("serialport");
 const config = require("../package.json");
 const colors = require("colors/safe");
 const filesize = require("file-size");
+const MemoryFS = require("memory-fs");
+
 const flash = require("../lib/flash");
 const erase = require("../lib/erase");
 const bundle = require("../lib/bundle");
@@ -19,6 +21,14 @@ const serialOptions = {
   autoOpen: false,
   baudRate: 115200,
 };
+
+function delay(time) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, time);
+  });
+}
 
 program.version(config.version);
 
@@ -44,32 +54,65 @@ program
   .command("flash <file>")
   .description("flash code (.js file) to device")
   .option("-p, --port <port>", "port where device is connected")
-  .action(function (file, options) {
+  .option("--no-load", "skip code loading", false)
+  .option("-b, --bundle", "bundle file", false)
+  .option("-m, --minify", "minify bundled code", false)
+  .option("-s, --sourcemap", "generate sourcemap", false)
+  .action(async function (file, options) {
     let port = options.port;
     let code = fs.readFileSync(file, "utf8");
-    console.log("Writing " + path.basename(file) + "...");
+
+    // bundle code if required
+    if (options.bundle) {
+      console.log("bundling " + colors.grey(file));
+      const memfs = new MemoryFS();
+      const stats = await bundle(
+        file,
+        Object.assign(options, { output: "bundle.js", memfs: memfs })
+      );
+      if (stats.hasErrors()) {
+        console.log(stats.toString("errors-only"));
+      } else {
+        const json = stats.toJson();
+        json.assets.forEach((asset) => {
+          console.log(
+            colors.cyan(`${asset.name} [memory]`) +
+              " " +
+              colors.yellow(`${filesize(parseInt(asset.size)).human()}`)
+          );
+        });
+        code = memfs.readFileSync("/bundle.js", "utf8");
+        file = "bundle.js [memory]";
+      }
+    }
+
+    // flash code
+    console.log("flashing " + file);
     const serial = new SerialPort(port, serialOptions);
-    serial.open((err) => {
+    serial.open(async (err) => {
       if (err) {
         console.error(err);
       } else {
-        flash(serial, code, (err, result) => {
-          if (err) {
-            console.error(err);
-          } else {
-            setTimeout(() => {
-              // load written code
-              serial.write("\r\r\r");
-              serial.write(".load\r");
-              setTimeout(() => {
-                if (serial.isOpen) {
-                  serial.close();
-                }
-                console.log(`Done. (${file} : ${result.writtenBytes} bytes)`);
-              }, 1000);
-            }, 1000);
+        try {
+          const result = await flash(serial, code);
+          await delay(1000);
+          // load written code
+          if (options.load) {
+            serial.write("\r");
+            serial.write(".load\r");
+            await delay(1000);
           }
-        });
+          if (serial.isOpen) {
+            serial.close();
+          }
+          console.log(
+            colors.yellow(`${filesize(result.writtenBytes).human()}`) +
+              " written"
+          );
+          console.log("Done.");
+        } catch (err) {
+          console.log(err);
+        }
       }
     });
   });
@@ -78,17 +121,16 @@ program
   .command("erase")
   .description("erase code in device")
   .option("-p, --port <port>", "port where device is connected")
-  .action(function (options) {
+  .action(async function (options) {
     let port = options.port;
     console.log("Erasing user code...");
     const serial = new SerialPort(port, serialOptions);
-    serial.open((err) => {
+    serial.open(async (err) => {
       if (err) {
         console.error(err);
       } else {
-        erase(serial, () => {
-          console.log("Done.");
-        });
+        await erase(serial);
+        console.log("Done.");
       }
     });
   });
@@ -99,27 +141,26 @@ program
   .option("-o, --output <file>", "port where device is connected", "bundle.js")
   .option("-m, --minify", "minify bundled code", false)
   .option("-s, --sourcemap", "generate sourcemap", false)
-  .action(function (file, options) {
+  .action(async function (file, options) {
     console.log("Bundling " + colors.grey(file));
-    bundle(file, options, (err, stats) => {
-      if (err) {
-        console.log(err);
+    try {
+      const stats = await bundle(file, options);
+      if (stats.hasErrors()) {
+        console.log(stats.toString("errors-only"));
       } else {
         const json = stats.toJson();
-        if (stats.hasErrors()) {
-          console.log(stats.toString("errors-only"));
-        } else {
-          json.assets.forEach((asset) => {
-            console.log(
-              colors.cyan(`${asset.name}`) +
-                " " +
-                colors.yellow(`${filesize(parseInt(asset.size)).human()}`)
-            );
-          });
-        }
+        json.assets.forEach((asset) => {
+          console.log(
+            colors.cyan(`${asset.name}`) +
+              " " +
+              colors.yellow(`${filesize(parseInt(asset.size)).human()}`)
+          );
+        });
       }
       console.log("Done.");
-    });
+    } catch (err) {
+      console.log(err);
+    }
   });
 
 program

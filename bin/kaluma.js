@@ -91,6 +91,31 @@ program
   });
 
 program
+  .command("bundle <file>")
+  .description("bundle codes")
+  .option("-o, --output <file>", "port where device is connected", "bundle.js")
+  .option("-m, --minify", "minify bundled code", false)
+  .option("-s, --sourcemap", "generate sourcemap", false)
+  .action(function (file, options) {
+    console.log("Bundling code...", file);
+    bundle(file, options, (err, stats) => {
+      if (err) {
+        console.log(err);
+      } else {
+        const json = stats.toJson();
+        if (stats.hasErrors()) {
+          console.log(stats.toString("errors-only"));
+        } else {
+          json.assets.forEach((asset) => {
+            console.log(`${asset.name} ${asset.size}`);
+          });
+        }
+      }
+      console.log("Done.");
+    });
+  });
+
+program
   .command("put <src> <dest>")
   .description("copy a file from host to device")
   .option("-p, --port <port>", "port where device is connected")

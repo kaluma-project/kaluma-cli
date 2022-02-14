@@ -5,6 +5,8 @@ const path = require("path");
 const { program } = require("commander");
 const SerialPort = require("serialport");
 const config = require("../package.json");
+const colors = require("colors/safe");
+const filesize = require("file-size");
 const flash = require("../lib/flash");
 const erase = require("../lib/erase");
 const bundle = require("../lib/bundle");
@@ -27,8 +29,9 @@ program
     SerialPort.list()
       .then((ports) => {
         ports.forEach(function (port) {
-          let s = port.path;
-          if (port.manufacturer) s += ` [${port.manufacturer}]`;
+          let s = colors.cyan(port.path);
+          if (port.manufacturer)
+            s += " " + colors.gray(`[${port.manufacturer}]`);
           console.log(s);
         });
       })
@@ -97,7 +100,7 @@ program
   .option("-m, --minify", "minify bundled code", false)
   .option("-s, --sourcemap", "generate sourcemap", false)
   .action(function (file, options) {
-    console.log("Bundling code...", file);
+    console.log("Bundling " + colors.grey(file));
     bundle(file, options, (err, stats) => {
       if (err) {
         console.log(err);
@@ -107,7 +110,11 @@ program
           console.log(stats.toString("errors-only"));
         } else {
           json.assets.forEach((asset) => {
-            console.log(`${asset.name} ${asset.size}`);
+            console.log(
+              colors.cyan(`${asset.name}`) +
+                " " +
+                colors.yellow(`${filesize(parseInt(asset.size)).human()}`)
+            );
           });
         }
       }

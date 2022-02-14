@@ -24,8 +24,10 @@
     "kaluma": "bin/kaluma.js"
   },
   "dependencies": {
+    "colors": "^1.4.0",
     "commander": "^8.3.0",
     "crc": "^3.8.0",
+    "file-size": "^1.0.0",
     "memory-fs": "^0.5.0",
     "serialport": "^9.2.8",
     "uglify-js": "^3.14.5",

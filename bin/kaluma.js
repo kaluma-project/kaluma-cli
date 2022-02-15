@@ -4,29 +4,52 @@ const fs = require("fs");
 const path = require("path");
 const { program } = require("commander");
 const SerialPort = require("serialport");
-const protocol = require("../lib/protocol");
 const config = require("../package.json");
+const colors = require("colors/safe");
+const filesize = require("file-size");
+const MemoryFS = require("memory-fs");
+
+const flash = require("../lib/flash");
+const erase = require("../lib/erase");
+const bundle = require("../lib/bundle");
 const put = require("../lib/put");
 const get = require("../lib/get");
-const eval = require('../lib/eval');
-const { BufferedSerial } = require("../lib/buffered-serial");
+const eval = require("../util/eval");
+const { BufferedSerial } = require("../util/buffered-serial");
 
 const serialOptions = {
   autoOpen: false,
   baudRate: 115200,
 };
 
+function delay(time) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, time);
+  });
+}
+
+function colorName(file) {
+  return colors.cyan(file);
+}
+
+function colorSize(size) {
+  return colors.yellow(`[${filesize(parseInt(size)).human()}]`);
+}
+
 program.version(config.version);
 
 program
-  .command("list")
+  .command("ports")
   .description("list available serial ports")
   .action(function () {
     SerialPort.list()
       .then((ports) => {
         ports.forEach(function (port) {
-          var s = port.path;
-          if (port.manufacturer) s += ` [${port.manufacturer}]`;
+          let s = colorName(port.path);
+          if (port.manufacturer)
+            s += " " + colors.gray(`[${port.manufacturer}]`);
           console.log(s);
         });
       })
@@ -36,69 +59,118 @@ program
   });
 
 program
-  .command("write <file>")
-  .description("write code (.js file) to Kaluma board")
-  .option("-p, --port <port>", "port where device is connected")
-  .action(function (file, options) {
-    var port = options.port;
-    var code = fs.readFileSync(file, "utf8");
-    console.log("Writing " + path.basename(file) + "...");
+  .command("flash <file>")
+  .description("flash code (.js file) to device")
+  .requiredOption("-p, --port <port>", "port where device is connected")
+  .option("--no-load", "skip code loading", false)
+  .option("-b, --bundle", "bundle file", false)
+  .option("-o, --output <file>", "port where device is connected", "bundle.js")
+  .option("-m, --minify", "minify bundled code", false)
+  .option("-s, --sourcemap", "generate sourcemap", false)
+  .action(async function (file, options) {
+    let port = options.port;
+    let code = fs.readFileSync(file, "utf8");
+
+    // bundle code if required
+    if (options.bundle) {
+      const stats = await bundle(file, Object.assign(options));
+      if (stats.hasErrors()) {
+        console.log(stats.toString("errors-only"));
+      } else {
+        const json = stats.toJson();
+        json.assets.forEach((asset) => {
+          console.log(`${colorName(asset.name)} ${colorSize(asset.size)}`);
+          file = asset.name; // set file to bundle output
+          code = fs.readFileSync(file, "utf8");
+        });
+      }
+    }
+
+    // flash code
     const serial = new SerialPort(port, serialOptions);
-    serial.open((err) => {
+    serial.open(async (err) => {
       if (err) {
         console.error(err);
       } else {
-        protocol.write(serial, code, (err, result) => {
-          if (err) {
-            console.error(err);
-          } else {
-            setTimeout(() => {
-              // load written code
-              serial.write("\r\r\r");
-              serial.write(".load\r");
-              setTimeout(() => {
-                if (serial.isOpen) {
-                  serial.close();
-                }
-                console.log(`Done. (${file} : ${result.writtenBytes} bytes)`);
-              }, 1000);
-            }, 1000);
+        try {
+          process.stdout.write(colors.grey("flashing "));
+          const result = await flash(serial, code, () => {
+            process.stdout.write(colors.grey("."));
+          });
+          process.stdout.write("\r\n");
+          await delay(500);
+          // load written code
+          if (options.load) {
+            serial.write("\r");
+            serial.write(".load\r");
+            await delay(500);
           }
-        });
+          if (serial.isOpen) {
+            serial.close();
+          }
+          console.log(`${colorSize(result.writtenBytes)} flashed`);
+        } catch (err) {
+          console.log(err);
+        }
       }
     });
   });
 
 program
   .command("erase")
-  .description("erase code in Kaluma board")
-  .option("-p, --port <port>", "port where device is connected")
-  .action(function (options) {
-    var port = options.port;
-    console.log("Erasing user code...");
+  .description("erase code in device")
+  .requiredOption("-p, --port <port>", "port where device is connected")
+  .action(async function (options) {
+    let port = options.port;
     const serial = new SerialPort(port, serialOptions);
-    serial.open((err) => {
+    serial.open(async (err) => {
       if (err) {
         console.error(err);
       } else {
-        protocol.erase(serial, () => {
-          console.log("Done.");
-        });
+        await erase(serial);
+        console.log("erased.");
       }
     });
   });
 
 program
+  .command("bundle <file>")
+  .description("bundle codes")
+  .option("-o, --output <file>", "port where device is connected", "bundle.js")
+  .option("-m, --minify", "minify bundled code", false)
+  .option("-s, --sourcemap", "generate sourcemap", false)
+  .action(async function (file, options) {
+    try {
+      const stats = await bundle(file, options);
+      if (stats.hasErrors()) {
+        console.log(stats.toString("errors-only"));
+      } else {
+        const json = stats.toJson();
+        json.assets.forEach((asset) => {
+          console.log(`${colorName(asset.name)} ${colorSize(asset.size)}`);
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  });
+
+program
   .command("put <src> <dest>")
-  .description("Copy a file from host to device")
-  .option("-p, --port <port>", "port where device is connected")
+  .description("copy a file from host to device")
+  .requiredOption("-p, --port <port>", "port where device is connected")
   .action(function (src, dest, options) {
     const srcPath = path.resolve(src);
     if (!fs.existsSync(srcPath)) {
-      console.log(`File not found: ${src}`);
+      console.log(`file not found: ${src}`);
+      return;
+    }
+    if (!path.isAbsolute(dest) || path.basename(dest).length === 0) {
+      console.log(`full path required: ${dest}`);
       return;
     }
     const stat = fs.statSync(srcPath);
+    const fileSize = stat.size;
     const port = options.port;
     const serial = new SerialPort(port, serialOptions);
     serial.open(async (err) => {
@@ -106,36 +178,67 @@ program
         console.error(err);
       } else {
         const bs = new BufferedSerial(serial);
-        await put(bs, srcPath, dest, stat.size);
+        process.stdout.write(colors.grey("copying "));
+        await put(bs, srcPath, dest, fileSize, () => {
+          process.stdout.write(colors.grey("."));
+        });
+        process.stdout.write("\r\n");
         serial.close();
+        console.log(
+          `[host] ${colorName(src)} --> [device] ${colorName(dest)} ${colorSize(
+            fileSize
+          )}`
+        );
       }
     });
   });
 
 program
   .command("get <src> <dest>")
-  .description("Copy a file from device to host")
-  .option("-p, --port <port>", "port where device is connected")
+  .description("copy a file from device to host")
+  .requiredOption("-p, --port <port>", "port where device is connected")
   .action(function (src, dest, options) {
-    const port = options.port;
-    const serial = new SerialPort(port, serialOptions);
-    serial.open(async (err) => {
-      if (err) {
-        console.error(err);
-      } else {
-        const bs = new BufferedSerial(serial);
-        const fun = `
-        function (fn) {
-          let fs = require('fs');
-          let stat = fs.stat(fn);
-          return stat.size;
-        }
-        `;
-        let fsize = await eval(bs, fun, src);
-        await get(bs, src, dest, fsize);
-        serial.close();
+    try {
+      const destPath = path.resolve(dest);
+      if (fs.existsSync(destPath)) {
+        console.log(`file already exists: ${dest}`);
+        return;
       }
-    });
+      if (!path.isAbsolute(src) || path.basename(src).length === 0) {
+        console.log(`full path required: ${src}`);
+        return;
+      }
+      const port = options.port;
+      const serial = new SerialPort(port, serialOptions);
+      serial.open(async (err) => {
+        if (err) {
+          console.error(err);
+        } else {
+          const bs = new BufferedSerial(serial);
+          const fun = `
+          function (fn) {
+            let fs = require('fs');
+            let stat = fs.stat(fn);
+            return stat.size;
+          }
+          `;
+          let fsize = await eval(bs, fun, src);
+          process.stdout.write(colors.grey("copying "));
+          await get(bs, src, dest, fsize, () => {
+            process.stdout.write(colors.grey("."));
+          });
+          process.stdout.write("\r\n");
+          serial.close();
+          console.log(
+            `[device] ${colorName(src)} --> [host] ${colorName(
+              dest
+            )} ${colorSize(fsize)}`
+          );
+        }
+      });
+    } catch (err) {
+      console.log(err);
+    }
   });
 
 program.parse(process.argv);

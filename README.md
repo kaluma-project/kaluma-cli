@@ -1,105 +1,161 @@
-# Kaluma CLI (Command Line Interface)
+![license](https://img.shields.io/github/license/kaluma-project/kaluma-cli?style=flat-square)
+![npm](https://img.shields.io/npm/v/@kaluma/cli.svg?style=flat-square)
 
-Kaluma CLI is a command-line tool to write (or erase) a JavaScript file (.js) to a Kaluma-compatible boards.
+# Kaluma CLI
 
-> You can only upload only a single .js file with CLI. If you want to upload multiple .js files, you need to bundle them into a single .js file using Webpack or other bundlers. Here is a [sample local project](https://github.com/kaluma-project/local-project-sample) showing how to setup a project in local with Webpack.
+Kaluma CLI is a command-line tool to program devices and boards running Kaluma runtime. It communicates with devices and boards via serial ports. Before using CLI, please ensure that your device or board is connected to a serial port.
 
 ## Install
 
-```sh
-$ npm install -g @kaluma/cli
+Install CLI via `npm` globally.
 
-# for Apple M1 or Raspberry Pi
-$ sudo npm install -g @kaluma/cli --unsafe-perm --build-from-source
+```sh
+npm install -g @kaluma/cli
+```
+
+If you failed to install, sometime you need to install by building from source as below (e.g. Apple M1, Raspberry Pi, or some Linux).
+
+```sh
+npm install -g @kaluma/cli --unsafe-perm --build-from-source
+```
+
+You can also install locally and run with `npx kaluma`.
+
+```sh
+npm install @kaluma/cli --save-dev
 ```
 
 ## Usage
 
-### Help
+### `help` command
 
 Print help for commands and options.
 
-```
-$ kaluma -h
+```sh
+kaluma help [command]
 ```
 
-### List available ports
+### `ports` command
 
 List all available serial ports.
 
-```
-$ kaluma list
+```sh
+kaluma ports
 ```
 
-### Write code (.js)
+### `flash` command
 
-Write the user code to the specified port where a Kaluma board connected.
+Flash code (.js file) to device.
 
-```
-$ kaluma write <file> -p <port>
+> You can flash only a single .js file to Kaluma. If you have multiple .js files, you need to bundle them with `--bundle` option or `bundle` command.
+
+```sh
+kaluma flash <file> --port <port> [--bundle] [--no-load] [...]
 ```
 
 - `<file>` : Path to the file to upload.
-- `-p, --port <port>` : Port where a device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
+- `-p, --port <port>` option : Path to a serial port where device is connected. You can check the available serial ports using `ports` command. (e.g. `/dev/tty.usbmodem*` or `COM*`)
+- `--no-load` option : Skip code loading after flash. Use this option if you don't want to run the flashed code immediately.
+- `-b, --bundle` option : Bundle .js code before flash. If you use this option, you can also use all options of `bundle` command.
 
-**Example**:
+Examples:
 
-```
-$ kaluma write index.js -p /dev/tty.usbmodem1441
-```
+```sh
+# flash index.js
+kaluma flash index.js --port /dev/tty.usbmodem1441
 
-### Erase code
+# flash index.js without load
+kaluma flash index.js --port /dev/tty.usbmodem1441 --no-load
 
-Erase the user code stored in the Kaluma board.
-
-```
-$ kaluma erase -p <port>
-```
-
-- `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
-
-**Example**:
-
-```
-$ kaluma erase -p /dev/tty.usbmodem1441
+# bundle index.js and then flash
+kaluma flash index.js --port /dev/tty.usbmodem1441 --bundle
 ```
 
-### Put file
+### `erase` command
+
+Erase code in device.
+
+```sh
+kaluma erase --port <port>
+```
+
+- `-p, --port <port>` option: See `flash` command.
+
+Example:
+
+```sh
+kaluma erase --port /dev/tty.usbmodem1441
+```
+
+### `bundle` command
+
+Bundle codes with webpack.
+
+> Note that you can bundle and flash at once with `--bundle` option of `flash` command.
+
+```sh
+kaluma bundle <file> [--output <file>] [--minify] [--sourcemap]
+```
+
+- `<file>` : Path to the file to bundle.
+- `-o, --output <file>` option : Output path of bundled code. Default is `bundle.js`.
+- `-m, --minify` option : Minify the bundled code. It can reduce the code size, but it may harden to debug.
+- `-s, --sourcemap` option : Generates source-map file.
+
+Example:
+
+```sh
+# Bundle 'index.js' into 'bundle.js'
+kaluma bundle index.js
+
+# Bundle 'index.js' into './dist/out.js'
+kaluma bundle index.js --output ./dist/out.js
+
+# Bundle 'index.js' into minified 'bundle.js'
+kaluma bundle index.js --minify
+
+# Bundle 'index.js' into 'bundle.js' with source-map file 'bundle.js.map'.
+kaluma bundle index.js --sourcemap
+```
+
+### `put` command
 
 Copy a file from host computer to device.
 
-```
-$ kaluma put <src> <dest> -p <port>
-```
-
-- `<src>` A file path in host computer
-- `<dest>` A file path in device
-- `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
-
-**Example**:
-
-Copy `data.txt` file in host computer to the path `/dir1/data.txt` in device.
-
-```
-$ kaluma put host.txt /dir1/device.txt -p /dev/tty.usbmodem1441
+```sh
+kaluma put <src> <dest> --port <port>
 ```
 
-### Get file
+- `<src>` Path to a file to send in host computer.
+- `<dest>` Path to the file received in device. Absolute file path is required.
+- `-p, --port <port>` option: See `flash` command.
+
+Examples:
+
+```sh
+# copy 'host.txt' [host] to '/dir/device.txt' [device]
+kaluma put host.txt /dir/device.txt --port /dev/tty.usbmodem1441
+```
+
+### `get` command
 
 Copy a file from device to host computer.
 
-```
-$ kaluma get <src> <dest> -p <port>
+```sh
+kaluma get <src> <dest> --port <port>
 ```
 
-- `<src>` A file path in device
-- `<dest>` A file path in host computer
-- `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
+- `<src>` Path to a file in device. Absolute file path is required.
+- `<dest>` Path to the file received in host computer.
+- `-p, --port <port>` option: See `flash` command.
 
-**Example**:
+Examples:
 
-Copy `data.txt` file in host computer to the path `/dir1/data.txt` in the device.
-
+```sh
+# copy '/dir/device.txt` [device] to 'host.txt' [host]
+kaluma get /dir/device.txt host.txt --port /dev/tty.usbmodem1441
 ```
-$ kaluma get /dir1/device.txt ./host.txt -p /dev/tty.usbmodem1441
-```
+
+## License
+
+[Apache](LICENSE)

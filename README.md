@@ -1,16 +1,14 @@
 # Kaluma CLI (Command Line Interface)
 
-Kaluma CLI is a command-line tool to write (or erase) a JavaScript file (.js) to a Kaluma-compatible boards.
-
-> You can only upload only a single .js file with CLI. If you want to upload multiple .js files, you need to bundle them into a single .js file using Webpack or other bundlers. Here is a [sample local project](https://github.com/kaluma-project/local-project-sample) showing how to setup a project in local with Webpack.
+Kaluma CLI is a command-line tool for devices running Kaluma runtime.
 
 ## Install
 
 ```sh
-$ npm install -g @kaluma/cli
+npm install -g @kaluma/cli
 
 # for Apple M1 or Raspberry Pi
-$ sudo npm install -g @kaluma/cli --unsafe-perm --build-from-source
+sudo npm install -g @kaluma/cli --unsafe-perm --build-from-source
 ```
 
 ## Usage
@@ -19,87 +17,87 @@ $ sudo npm install -g @kaluma/cli --unsafe-perm --build-from-source
 
 Print help for commands and options.
 
-```
-$ kaluma -h
+```sh
+kaluma help
 ```
 
 ### List available ports
 
 List all available serial ports.
 
-```
-$ kaluma list
+```sh
+kaluma ports
 ```
 
-### Write code (.js)
+### Flash code (.js) to device
 
-Write the user code to the specified port where a Kaluma board connected.
+Flash your code to the specified port.
 
-```
-$ kaluma write <file> -p <port>
+```sh
+kaluma flash <file> --port <port>
 ```
 
 - `<file>` : Path to the file to upload.
-- `-p, --port <port>` : Port where a device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
+- `-p, --port <port>` : Port where a device is connected. (e.g. `/dev/tty.usbmodem1441`)
 
 **Example**:
 
-```
-$ kaluma write index.js -p /dev/tty.usbmodem1441
+```sh
+kaluma flash index.js --port /dev/tty.usbmodem1441
 ```
 
-### Erase code
+### Erase code in device
 
 Erase the user code stored in the Kaluma board.
 
-```
-$ kaluma erase -p <port>
+```sh
+kaluma erase --port <port>
 ```
 
-- `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
+- `-p, --port <port>` : Port where device is connected. (e.g. `/dev/tty.usbmodem1441`)
 
 **Example**:
 
-```
-$ kaluma erase -p /dev/tty.usbmodem1441
+```sh
+kaluma erase --port /dev/tty.usbmodem1441
 ```
 
-### Put file
+### Put file to device
 
 Copy a file from host computer to device.
 
-```
-$ kaluma put <src> <dest> -p <port>
+```sh
+kaluma put <src> <dest> --port <port>
 ```
 
 - `<src>` A file path in host computer
 - `<dest>` A file path in device
-- `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
+- `-p, --port <port>` : Port where device is connected. (e.g. `/dev/tty.usbmodem1441`)
 
 **Example**:
 
 Copy `data.txt` file in host computer to the path `/dir1/data.txt` in device.
 
-```
-$ kaluma put host.txt /dir1/device.txt -p /dev/tty.usbmodem1441
+```sh
+kaluma put host.txt /dir1/device.txt --port /dev/tty.usbmodem1441
 ```
 
-### Get file
+### Get file from device
 
 Copy a file from device to host computer.
 
-```
-$ kaluma get <src> <dest> -p <port>
+```sh
+kaluma get <src> <dest> --port <port>
 ```
 
 - `<src>` A file path in device
 - `<dest>` A file path in host computer
-- `-p, --port <port>` : Port where device is connected. (e.g. `-p /dev/tty.usbmodem1441`)
+- `-p, --port <port>` : Port where device is connected. (e.g. `/dev/tty.usbmodem1441`)
 
 **Example**:
 
 Copy `data.txt` file in host computer to the path `/dir1/data.txt` in the device.
 
-```
-$ kaluma get /dir1/device.txt ./host.txt -p /dev/tty.usbmodem1441
+```sh
+kaluma get /dir1/device.txt ./host.txt --port /dev/tty.usbmodem1441
 ```

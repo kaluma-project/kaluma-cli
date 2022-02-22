@@ -7,7 +7,6 @@ const SerialPort = require("serialport");
 const config = require("../package.json");
 const colors = require("colors/safe");
 const filesize = require("file-size");
-const MemoryFS = require("memory-fs");
 
 const flash = require("../lib/flash");
 const erase = require("../lib/erase");

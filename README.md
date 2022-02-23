@@ -27,6 +27,14 @@ npm install @kaluma/cli --save-dev
 
 ## Usage
 
+- [`help`](#help-command)
+- [`ports`](#ports-command)
+- [`flash`](#flash-command)
+- [`erase`](#erase-command)
+- [`bundle`](#bundle-command)
+- [`put`](#put-command)
+- [`get`](#get-command)
+
 ### `help` command
 
 Print help for commands and options.
@@ -79,7 +87,7 @@ Erase code in device.
 kaluma erase --port <port>
 ```
 
-- `-p, --port <port>` option: See `flash` command.
+- `-p, --port <port>` option: See [`flash`](#flash-command) command.
 
 Example:
 
@@ -128,7 +136,7 @@ kaluma put <src> <dest> --port <port>
 
 - `<src>` Path to a file to send in host computer.
 - `<dest>` Path to the file received in device. Absolute file path is required.
-- `-p, --port <port>` option: See `flash` command.
+- `-p, --port <port>` option: See [`flash`](#flash-command) command.
 
 Examples:
 
@@ -147,7 +155,7 @@ kaluma get <src> <dest> --port <port>
 
 - `<src>` Path to a file in device. Absolute file path is required.
 - `<dest>` Path to the file received in host computer.
-- `-p, --port <port>` option: See `flash` command.
+- `-p, --port <port>` option: See [`flash`](#flash-command) command.
 
 Examples:
 

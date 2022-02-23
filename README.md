@@ -3,7 +3,7 @@
 
 # Kaluma CLI
 
-Kaluma CLI is a command-line tool to program devices and boards running Kaluma runtime. It communicates with devices and boards via serial ports. Before using CLI, please ensure that your device or board is connected to a serial port.
+Kaluma CLI is a command-line tool to program devices and boards running [Kaluma](https://kalumajs.org) runtime. It communicates with devices and boards via serial ports. Before using CLI, please ensure that your device or board is connected to a serial port.
 
 ## Install
 
@@ -62,9 +62,9 @@ kaluma flash <file> --port <port> [--bundle] [--no-load] [...]
 ```
 
 - `<file>` : Path to the file to upload.
-- `-p, --port <port>` option : Path to a serial port where device is connected. You can check the available serial ports using `ports` command. (e.g. `/dev/tty.usbmodem*` or `COM*`)
+- `-p, --port <port>` option : Path to a serial port where device is connected. You can check the available serial ports using [`ports`](#ports-command) command. (e.g. `/dev/tty.usbmodem*` or `COM*`)
 - `--no-load` option : Skip code loading after flash. Use this option if you don't want to run the flashed code immediately.
-- `-b, --bundle` option : Bundle .js code before flash. If you use this option, you can also use all options of `bundle` command.
+- `-b, --bundle` option : Bundle .js code before flash. If you use this option, you can also use all options of [`bundle`](#bundle-command) command.
 
 Examples:
 
@@ -99,7 +99,7 @@ kaluma erase --port /dev/tty.usbmodem1441
 
 Bundle codes with webpack.
 
-> Note that you can bundle and flash at once with `--bundle` option of `flash` command.
+> Note that you can bundle and flash at once with `--bundle` option of [`flash`](#flash-command) command.
 
 ```sh
 kaluma bundle <file> [--output <file>] [--minify] [--sourcemap]

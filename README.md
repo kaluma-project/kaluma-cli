@@ -76,11 +76,7 @@ Examples:
 # flash index.js to port: /dev/tty.usbmodem1441
 kaluma flash index.js --port /dev/tty.usbmodem1441
 
-<<<<<<< HEAD
 # flash index.js to Raspberry Pi Pico (vid: 2e8a)
-=======
-# flash index.js to the device having '28ea' VID (Raspberry Pi)
->>>>>>> 546b0ed975d68408b2d7f9a82e2cff406b790f3b
 kaluma flash index.js
 
 # flash index.js without load

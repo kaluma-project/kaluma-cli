@@ -5,6 +5,18 @@
 
 Kaluma CLI is a command-line tool to program devices and boards running [Kaluma](https://kalumajs.org) runtime. It communicates with devices and boards via serial ports. Before using CLI, please ensure that your device or board is connected to a serial port.
 
+- [Kaluma CLI](#kaluma-cli)
+  - [Install](#install)
+  - [Usage](#usage)
+    - [`help` command](#help-command)
+    - [`ports` command](#ports-command)
+    - [`flash` command](#flash-command)
+    - [`erase` command](#erase-command)
+    - [`bundle` command](#bundle-command)
+    - [`put` command](#put-command)
+    - [`get` command](#get-command)
+  - [License](#license)
+
 ## Install
 
 Install CLI via `npm` globally.
@@ -26,14 +38,6 @@ npm install @kaluma/cli --save-dev
 ```
 
 ## Usage
-
-- [`help`](#help-command)
-- [`ports`](#ports-command)
-- [`flash`](#flash-command)
-- [`erase`](#erase-command)
-- [`bundle`](#bundle-command)
-- [`put`](#put-command)
-- [`get`](#get-command)
 
 ### `help` command
 
@@ -58,19 +62,22 @@ Flash code (.js file) to device.
 > You can flash only a single .js file to Kaluma. If you have multiple .js files, you need to bundle them with `--bundle` option or `bundle` command.
 
 ```sh
-kaluma flash <file> --port <port> [--bundle] [--no-load] [...]
+kaluma flash <file> [--port <port>] [--bundle] [--no-load] [...]
 ```
 
 - `<file>` : Path to the file to upload.
-- `-p, --port <port>` option : Path to a serial port where device is connected. You can check the available serial ports using [`ports`](#ports-command) command. (e.g. `/dev/tty.usbmodem*` or `COM*`)
+- `-p, --port <port>` option : Path to a serial port where device is connected. You can check the available serial ports using `ports` command. (e.g. `/dev/tty*` or `COM*`). Or, you can pass a port query with serial device's VID (Vendor ID) and PID (Product ID) (e.g. `@<vid>`, `@<vid>:<pid>`). (**Default:** `@2e8a` - This is VID of Respberry Pi, so automatically finds the port of Raspberry Pi Pico if you omit `--port` option)
 - `--no-load` option : Skip code loading after flash. Use this option if you don't want to run the flashed code immediately.
 - `-b, --bundle` option : Bundle .js code before flash. If you use this option, you can also use all options of [`bundle`](#bundle-command) command.
 
 Examples:
 
 ```sh
-# flash index.js
+# flash index.js to port: /dev/tty.usbmodem1441
 kaluma flash index.js --port /dev/tty.usbmodem1441
+
+# flash index.js to Raspberry Pi Pico (vid: 2e8a)
+kaluma flash index.js
 
 # flash index.js without load
 kaluma flash index.js --port /dev/tty.usbmodem1441 --no-load
@@ -84,7 +91,7 @@ kaluma flash index.js --port /dev/tty.usbmodem1441 --bundle
 Erase code in device.
 
 ```sh
-kaluma erase --port <port>
+kaluma erase [--port <port>]
 ```
 
 - `-p, --port <port>` option: See [`flash`](#flash-command) command.
@@ -92,7 +99,11 @@ kaluma erase --port <port>
 Example:
 
 ```sh
+# erase code in flash of port: /dev/tty.usbmodem1441
 kaluma erase --port /dev/tty.usbmodem1441
+
+# erase code in flash of Raspberry Pi Pico (vid: 2e8a)
+kaluma erase
 ```
 
 ### `bundle` command
@@ -106,7 +117,7 @@ kaluma bundle <file> [--output <file>] [--minify] [--sourcemap]
 ```
 
 - `<file>` : Path to the file to bundle.
-- `-o, --output <file>` option : Output path of bundled code. Default is `bundle.js`.
+- `-o, --output <file>` option : Output path of bundled code. (**Default:** `bundle.js`).
 - `-m, --minify` option : Minify the bundled code. It can reduce the code size, but it may harden to debug.
 - `-s, --sourcemap` option : Generates source-map file.
 
@@ -131,7 +142,7 @@ kaluma bundle index.js --sourcemap
 Copy a file from host computer to device.
 
 ```sh
-kaluma put <src> <dest> --port <port>
+kaluma put <src> <dest> [--port <port>]
 ```
 
 - `<src>` Path to a file to send in host computer.
@@ -143,6 +154,9 @@ Examples:
 ```sh
 # copy 'host.txt' [host] to '/dir/device.txt' [device]
 kaluma put host.txt /dir/device.txt --port /dev/tty.usbmodem1441
+
+# copy 'host.txt' [host] to '/dir/device.txt' [Raspberry Pi Pico]
+kaluma put host.txt /dir/device.txt
 ```
 
 ### `get` command
@@ -150,7 +164,7 @@ kaluma put host.txt /dir/device.txt --port /dev/tty.usbmodem1441
 Copy a file from device to host computer.
 
 ```sh
-kaluma get <src> <dest> --port <port>
+kaluma get <src> <dest> [--port <port>]
 ```
 
 - `<src>` Path to a file in device. Absolute file path is required.
@@ -162,6 +176,9 @@ Examples:
 ```sh
 # copy '/dir/device.txt` [device] to 'host.txt' [host]
 kaluma get /dir/device.txt host.txt --port /dev/tty.usbmodem1441
+
+# copy '/dir/device.txt` [Raspberry Pi Pico] to 'host.txt' [host]
+kaluma get /dir/device.txt host.txt
 ```
 
 ## License

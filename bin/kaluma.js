@@ -40,6 +40,36 @@ function colorSize(size) {
 program.version(config.version);
 
 program
+  .command("shell")
+  .description("...")
+  .requiredOption("-p, --port <port>", "port where device is connected")
+  .action(async function (options) {
+    let port = options.port;
+    const serial = new SerialPort(port, serialOptions);
+    serial.open(async (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        serial.on("data", (chunk) => {
+          // console.log("serial ===== ", chunk);
+          process.stdout.write(chunk);
+        });
+
+        process.stdin.setRawMode(true);
+        process.stdin.on("data", (chunk) => {
+          // console.log("data = ", chunk);
+          if (chunk[0] === 0x03) {
+            // ctrl+c
+            process.exit(0);
+          } else {
+            serial.write(chunk);
+          }
+        });
+      }
+    });
+  });
+
+program
   .command("ports")
   .description("list available serial ports")
   .action(function () {

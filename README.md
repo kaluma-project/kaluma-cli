@@ -12,6 +12,7 @@ Kaluma CLI is a command-line tool to program devices and boards running [Kaluma]
     - [`ports` command](#ports-command)
     - [`flash` command](#flash-command)
     - [`erase` command](#erase-command)
+    - [`shell` command](#shell-command)
     - [`bundle` command](#bundle-command)
     - [`put` command](#put-command)
     - [`get` command](#get-command)
@@ -104,6 +105,28 @@ kaluma erase --port /dev/tty.usbmodem1441
 
 # erase code in flash of Raspberry Pi Pico (vid: 2e8a)
 kaluma erase
+```
+
+### `shell` command
+
+> **THIS IS EXPERIMENTAL FEATURE** - It may not work in some shells (zsh in macOS). Works well in VSCode Terminal.
+
+Shell connect (binds standard I/O to serial port).
+
+```sh
+kaluma shell [--port <port>]
+```
+
+- `-p, --port <port>` option: See [`flash`](#flash-command) command.
+
+Example:
+
+```sh
+# shell connect to the port: /dev/tty.usbmodem1441
+kaluma shell --port /dev/tty.usbmodem1441
+
+# shell connect to Raspberry Pi Pico (vid: 2e8a)
+kaluma shell
 ```
 
 ### `bundle` command

@@ -47,9 +47,6 @@ function colorSize(size) {
 }
 
 function bind(serial) {
-  serial.on("data", (chunk) => {
-    process.stdout.write(chunk);
-  });
   process.stdin.setRawMode(true);
   process.stdin.on("data", (chunk) => {
     if (chunk[0] === 0x1a) {
@@ -58,6 +55,9 @@ function bind(serial) {
     } else {
       serial.write(chunk);
     }
+  });
+  serial.on("data", (chunk) => {
+    process.stdout.write(chunk);
   });
 }
 
@@ -103,6 +103,28 @@ async function findPort(portOrQuery, exit) {
 }
 
 program.version(config.version);
+
+program
+  .command("shell")
+  .description("shell connect (exit: ctrl+z)")
+  .option("-p, --port <port>", optionDescriptions.port, "@2e8a")
+  .action(async function (options) {
+    // find port
+    const port = await findPort(options.port, true);
+
+    // shell connect
+    const serial = new SerialPort(port, serialOptions);
+    serial.open(async (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(`connected to ${port}`);
+        console.log(colorName(`To exit: ctrl+z`));
+        bind(serial);
+        serial.write("\r.hi\r");
+      }
+    });
+  });
 
 program
   .command("ports")

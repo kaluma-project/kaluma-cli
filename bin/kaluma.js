@@ -21,6 +21,15 @@ const serialOptions = {
   baudRate: 115200,
 };
 
+const optionDescriptions = {
+  port: "port where device is connected. allows port path (/dev/tty*, COM*) or port query (@<vid>, @<vid>:<pid>). Raspberry Pi's VID is 2e8a",
+  output: "output file path",
+  minify: "minify bundled code",
+  sourcemap: "generate sourcemap",
+  bundle: "bundle file",
+  noLoad: "skip code loading",
+};
+
 function delay(time) {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -37,7 +46,85 @@ function colorSize(size) {
   return colors.yellow(`[${filesize(parseInt(size)).human()}]`);
 }
 
+function bind(serial) {
+  process.stdin.setRawMode(true);
+  process.stdin.on("data", (chunk) => {
+    if (chunk[0] === 0x1a) {
+      // ctrl+z
+      process.exit(0);
+    } else {
+      serial.write(chunk);
+    }
+  });
+  serial.on("data", (chunk) => {
+    process.stdout.write(chunk);
+  });
+}
+
+async function findPort(portOrQuery, exit) {
+  let port = null;
+  const ports = await SerialPort.list();
+  ports.forEach((p) => {
+    if (p.vendorId) {
+      p.vendorId = p.vendorId.toLowerCase();
+    }
+    if (p.productId) {
+      p.productId = p.productId.toLowerCase();
+    }
+  });
+  if (portOrQuery.startsWith("@")) {
+    const query = portOrQuery.substr(1).toLowerCase();
+    let vid = null;
+    let pid = null;
+    if (query.includes(":")) {
+      const terms = query.split(":");
+      vid = terms[0];
+      pid = terms[1];
+    } else {
+      vid = query;
+    }
+    let result = ports.find(
+      (p) => p.vendorId === vid && (pid === null || p.productId === pid)
+    );
+    if (result) {
+      port = result.path;
+    }
+  } else {
+    let result = ports.find((p) => p.path === portOrQuery);
+    if (result) {
+      port = result.path;
+    }
+  }
+  if (exit && port === null) {
+    console.log(`port not found: ${portOrQuery}`);
+    process.exit(2);
+  }
+  return port;
+}
+
 program.version(config.version);
+
+program
+  .command("shell")
+  .description("[EXPERIMENTAL] shell connect (exit: ctrl+z)")
+  .option("-p, --port <port>", optionDescriptions.port, "@2e8a")
+  .action(async function (options) {
+    // find port
+    const port = await findPort(options.port, true);
+
+    // shell connect
+    const serial = new SerialPort(port, serialOptions);
+    serial.open(async (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(`connected to ${port}`);
+        console.log(colorName(`To exit: ctrl+z`));
+        bind(serial);
+        serial.write("\r.hi\r");
+      }
+    });
+  });
 
 program
   .command("ports")
@@ -60,15 +147,17 @@ program
 program
   .command("flash <file>")
   .description("flash code (.js file) to device")
-  .requiredOption("-p, --port <port>", "port where device is connected")
-  .option("--no-load", "skip code loading", false)
-  .option("-b, --bundle", "bundle file", false)
-  .option("-o, --output <file>", "port where device is connected", "bundle.js")
-  .option("-m, --minify", "minify bundled code", false)
-  .option("-s, --sourcemap", "generate sourcemap", false)
+  .option("-p, --port <port>", optionDescriptions.port, "@2e8a")
+  .option("--no-load", optionDescriptions.noLoad, false)
+  .option("-b, --bundle", optionDescriptions.bundle, false)
+  .option("-o, --output <file>", optionDescriptions.output, "bundle.js")
+  .option("-m, --minify", optionDescriptions.minify, false)
+  .option("-s, --sourcemap", optionDescriptions.sourcemap, false)
   .action(async function (file, options) {
-    let port = options.port;
     let code = fs.readFileSync(file, "utf8");
+
+    // find port
+    const port = await findPort(options.port, true);
 
     // bundle code if required
     if (options.bundle) {
@@ -91,6 +180,7 @@ program
       if (err) {
         console.error(err);
       } else {
+        console.log(`connected to ${port}`);
         try {
           process.stdout.write(colors.grey("flashing "));
           const result = await flash(serial, code, () => {
@@ -118,14 +208,18 @@ program
 program
   .command("erase")
   .description("erase code in device")
-  .requiredOption("-p, --port <port>", "port where device is connected")
+  .option("-p, --port <port>", optionDescriptions.port, "@2e8a")
   .action(async function (options) {
-    let port = options.port;
+    // find port
+    const port = await findPort(options.port, true);
+
+    // erase
     const serial = new SerialPort(port, serialOptions);
     serial.open(async (err) => {
       if (err) {
         console.error(err);
       } else {
+        console.log(`connected to ${port}`);
         await erase(serial);
         console.log("erased.");
       }
@@ -135,9 +229,9 @@ program
 program
   .command("bundle <file>")
   .description("bundle codes")
-  .option("-o, --output <file>", "port where device is connected", "bundle.js")
-  .option("-m, --minify", "minify bundled code", false)
-  .option("-s, --sourcemap", "generate sourcemap", false)
+  .option("-o, --output <file>", optionDescriptions.output, "bundle.js")
+  .option("-m, --minify", optionDescriptions.minify, false)
+  .option("-s, --sourcemap", optionDescriptions.sourcemap, false)
   .action(async function (file, options) {
     try {
       const stats = await bundle(file, options);
@@ -157,8 +251,8 @@ program
 program
   .command("put <src> <dest>")
   .description("copy a file from host to device")
-  .requiredOption("-p, --port <port>", "port where device is connected")
-  .action(function (src, dest, options) {
+  .option("-p, --port <port>", optionDescriptions.port, "@2e8a")
+  .action(async function (src, dest, options) {
     const srcPath = path.resolve(src);
     if (!fs.existsSync(srcPath)) {
       console.log(`file not found: ${src}`);
@@ -170,12 +264,17 @@ program
     }
     const stat = fs.statSync(srcPath);
     const fileSize = stat.size;
-    const port = options.port;
+
+    // find port
+    const port = await findPort(options.port, true);
+
+    // put
     const serial = new SerialPort(port, serialOptions);
     serial.open(async (err) => {
       if (err) {
         console.error(err);
       } else {
+        console.log(`connected to ${port}`);
         const bs = new BufferedSerial(serial);
         process.stdout.write(colors.grey("copying "));
         await put(bs, srcPath, dest, fileSize, () => {
@@ -195,8 +294,8 @@ program
 program
   .command("get <src> <dest>")
   .description("copy a file from device to host")
-  .requiredOption("-p, --port <port>", "port where device is connected")
-  .action(function (src, dest, options) {
+  .option("-p, --port <port>", optionDescriptions.port, "@2e8a")
+  .action(async function (src, dest, options) {
     try {
       const destPath = path.resolve(dest);
       if (fs.existsSync(destPath)) {
@@ -207,12 +306,17 @@ program
         console.log(`full path required: ${src}`);
         return;
       }
-      const port = options.port;
+
+      // find port
+      const port = await findPort(options.port, true);
+
+      // get
       const serial = new SerialPort(port, serialOptions);
       serial.open(async (err) => {
         if (err) {
           console.error(err);
         } else {
+          console.log(`connected to ${port}`);
           const bs = new BufferedSerial(serial);
           const fun = `
           function (fn) {

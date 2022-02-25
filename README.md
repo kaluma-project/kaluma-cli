@@ -116,7 +116,7 @@ kaluma erase --port /dev/tty.usbmodem1441
 
 ### `shell` command
 
-> **THIS IS EXPERIMENTAL FEATURE** - It may not work in some shells (zsh in macOS). Works well in VSCode Terminal.
+> **THIS IS EXPERIMENTAL FEATURE**
 
 Shell connect (binds standard I/O to serial port).
 

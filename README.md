@@ -7,6 +7,7 @@ Kaluma CLI is a command-line tool to program devices and boards running [Kaluma]
 
 - [Kaluma CLI](#kaluma-cli)
   - [Install](#install)
+  - [Recommended Workflow](#recommended-workflow)
   - [Usage](#usage)
     - [`help` command](#help-command)
     - [`ports` command](#ports-command)
@@ -37,6 +38,25 @@ You can also install locally and run with `npx kaluma`.
 ```sh
 npm install @kaluma/cli --save-dev
 ```
+
+## Recommended Workflow
+
+A typical workflow to program Kaluma is:
+
+1. Bundle main (`index.js`) file. (`kaluma bundle ...`)
+2. Flash the bundled file. (`kaluma flash ...`)
+3. Check errors or outputs in console with shell connection. (`kaluma shell ...`)
+
+Repeating these tasks is very tedious, so we recommend to use [`flash`](#flash-command) command with `--bundle` and `--shell` options as below:
+
+```sh
+kaluma flash index.js --bundle --shell
+
+# shortly
+kaluma flash index.js -b -s
+```
+
+It processes all the task sequentially. Lastly you just need to exit the shell connection by pressing `ctrl+z`.
 
 ## Usage
 

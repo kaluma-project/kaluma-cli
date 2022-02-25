@@ -63,7 +63,7 @@ Flash code (.js file) to device.
 > You can flash only a single .js file to Kaluma. If you have multiple .js files, you need to bundle them with `--bundle` option or [`bundle`](#bundle-command) command.
 
 ```sh
-kaluma flash <file> [--port <port>] [--bundle] [--no-load] [...]
+kaluma flash <file> [--port <port>] [--bundle] [--shell] [--no-load] [...]
 ```
 
 - `<file>` : Path to the file to upload.
@@ -78,17 +78,20 @@ kaluma flash <file> [--port <port>] [--bundle] [--no-load] [...]
 Examples:
 
 ```sh
-# flash index.js to port: /dev/tty.usbmodem1441
-kaluma flash index.js --port /dev/tty.usbmodem1441
-
 # flash index.js to Raspberry Pi Pico (vid: 2e8a)
 kaluma flash index.js
 
+# flash index.js to port: /dev/tty.usbmodem1441
+kaluma flash index.js --port /dev/tty.usbmodem1441
+
 # flash index.js without load
-kaluma flash index.js --port /dev/tty.usbmodem1441 --no-load
+kaluma flash index.js --no-load
 
 # bundle index.js and then flash
-kaluma flash index.js --port /dev/tty.usbmodem1441 --bundle
+kaluma flash index.js --bundle
+
+# bundle and flash index.js with shell connection
+kaluma flash index.js --shell --bundle
 ```
 
 ### `erase` command
@@ -104,11 +107,11 @@ kaluma erase [--port <port>]
 Example:
 
 ```sh
-# erase code in flash of port: /dev/tty.usbmodem1441
-kaluma erase --port /dev/tty.usbmodem1441
-
 # erase code in flash of Raspberry Pi Pico (vid: 2e8a)
 kaluma erase
+
+# erase code in flash of port: /dev/tty.usbmodem1441
+kaluma erase --port /dev/tty.usbmodem1441
 ```
 
 ### `shell` command
@@ -126,11 +129,11 @@ kaluma shell [--port <port>]
 Example:
 
 ```sh
-# shell connect to the port: /dev/tty.usbmodem1441
-kaluma shell --port /dev/tty.usbmodem1441
-
 # shell connect to Raspberry Pi Pico (vid: 2e8a)
 kaluma shell
+
+# shell connect to the port: /dev/tty.usbmodem1441
+kaluma shell --port /dev/tty.usbmodem1441
 ```
 
 ### `bundle` command
@@ -179,11 +182,11 @@ kaluma put <src> <dest> [--port <port>]
 Examples:
 
 ```sh
-# copy 'host.txt' [host] to '/dir/device.txt' [device]
-kaluma put host.txt /dir/device.txt --port /dev/tty.usbmodem1441
-
 # copy 'host.txt' [host] to '/dir/device.txt' [Raspberry Pi Pico]
 kaluma put host.txt /dir/device.txt
+
+# copy 'host.txt' [host] to '/dir/device.txt' [device]
+kaluma put host.txt /dir/device.txt --port /dev/tty.usbmodem1441
 ```
 
 ### `get` command
@@ -201,11 +204,11 @@ kaluma get <src> <dest> [--port <port>]
 Examples:
 
 ```sh
-# copy '/dir/device.txt` [device] to 'host.txt' [host]
-kaluma get /dir/device.txt host.txt --port /dev/tty.usbmodem1441
-
 # copy '/dir/device.txt` [Raspberry Pi Pico] to 'host.txt' [host]
 kaluma get /dir/device.txt host.txt
+
+# copy '/dir/device.txt` [device] to 'host.txt' [host]
+kaluma get /dir/device.txt host.txt --port /dev/tty.usbmodem1441
 ```
 
 ## License

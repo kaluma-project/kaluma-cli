@@ -1,3 +1,3 @@
 setInterval(function () {
-  board.LED0.toggle()
+  console.log("hello!");
 }, 1000);

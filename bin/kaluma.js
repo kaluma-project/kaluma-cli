@@ -28,6 +28,7 @@ const optionDescriptions = {
   sourcemap: "generate sourcemap",
   bundle: "bundle file",
   noLoad: "skip code loading",
+  shell: "shell connect",
 };
 
 function delay(time) {
@@ -46,12 +47,20 @@ function colorSize(size) {
   return colors.yellow(`[${filesize(parseInt(size)).human()}]`);
 }
 
-function bind(serial) {
+function bind(serial, intercept) {
   process.stdin.setRawMode(true);
   process.stdin.on("data", (chunk) => {
-    if (chunk[0] === 0x1a) {
-      // ctrl+z
-      process.exit(0);
+    if (Array.isArray(intercept)) {
+      let intercepted = false;
+      intercept.forEach((i) => {
+        if (chunk[0] === i.keycode) {
+          i.callback();
+          intercepted = true;
+        }
+      });
+      if (!intercepted) {
+        serial.write(chunk);
+      }
     } else {
       serial.write(chunk);
     }
@@ -120,7 +129,14 @@ program
       } else {
         console.log(`connected to ${port}`);
         console.log(colorName(`To exit: ctrl+z`));
-        bind(serial);
+        bind(serial, [
+          {
+            keycode: 0x1a,
+            callback: () => {
+              process.exit(0);
+            },
+          },
+        ]);
         serial.write("\r.hi\r");
       }
     });
@@ -134,8 +150,16 @@ program
       .then((ports) => {
         ports.forEach(function (port) {
           let s = colorName(port.path);
-          if (port.manufacturer)
-            s += " " + colors.gray(`[${port.manufacturer}]`);
+          if (port.manufacturer) {
+            s += ` [${port.manufacturer}]`;
+          }
+          if (port.vendorId && port.productId) {
+            s +=
+              " " +
+              colors.gray(
+                `(vid=${port.vendorId.toLowerCase()},pid=${port.productId.toLowerCase()})`
+              );
+          }
           console.log(s);
         });
       })
@@ -152,7 +176,8 @@ program
   .option("-b, --bundle", optionDescriptions.bundle, false)
   .option("-o, --output <file>", optionDescriptions.output, "bundle.js")
   .option("-m, --minify", optionDescriptions.minify, false)
-  .option("-s, --sourcemap", optionDescriptions.sourcemap, false)
+  .option("-c, --sourcemap", optionDescriptions.sourcemap, false)
+  .option("-s, --shell", optionDescriptions.shell, false)
   .action(async function (file, options) {
     let code = fs.readFileSync(file, "utf8");
 
@@ -181,12 +206,32 @@ program
         console.error(err);
       } else {
         console.log(`connected to ${port}`);
+        if (options.shell) {
+          console.log(colorName(`To exit: ctrl+z`));
+          bind(serial, [
+            {
+              keycode: 0x1a,
+              callback: () => {
+                process.exit(0);
+              },
+            },
+          ]);
+          serial.write("\r.hi\r");
+          await delay(100);
+        }
+
         try {
-          process.stdout.write(colors.grey("flashing "));
+          if (!options.shell) {
+            process.stdout.write(colors.grey("flashing "));
+          }
           const result = await flash(serial, code, () => {
-            process.stdout.write(colors.grey("."));
+            if (!options.shell) {
+              process.stdout.write(colors.grey("."));
+            }
           });
-          process.stdout.write("\r\n");
+          if (!options.shell) {
+            process.stdout.write("\r\n");
+          }
           await delay(500);
           // load written code
           if (options.load) {
@@ -194,10 +239,12 @@ program
             serial.write(".load\r");
             await delay(500);
           }
-          if (serial.isOpen) {
+          if (!options.shell && serial.isOpen) {
             serial.close();
           }
-          console.log(`${colorSize(result.writtenBytes)} flashed`);
+          if (!options.shell) {
+            console.log(`${colorSize(result.writtenBytes)} flashed`);
+          }
         } catch (err) {
           console.log(err);
         }
@@ -231,7 +278,7 @@ program
   .description("bundle codes")
   .option("-o, --output <file>", optionDescriptions.output, "bundle.js")
   .option("-m, --minify", optionDescriptions.minify, false)
-  .option("-s, --sourcemap", optionDescriptions.sourcemap, false)
+  .option("-c, --sourcemap", optionDescriptions.sourcemap, false)
   .action(async function (file, options) {
     try {
       const stats = await bundle(file, options);

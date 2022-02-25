@@ -73,6 +73,7 @@ kaluma flash <file> [--port <port>] [--bundle] [--no-load] [...]
 - `-o, --output <file>` option : See [`bundle`](#bundle-command) command.
 - `-m, --minify` option : See [`bundle`](#bundle-command) command.
 - `-c, --sourcemap` option : See [`bundle`](#bundle-command) command.
+- `-s, --shell` option: Flash code with shell connection. With this option you can see all console logs and errors. To exit the shell, press `ctrl+z`. See [`shell`](#shell-command) command.
 
 Examples:
 

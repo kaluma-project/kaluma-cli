@@ -152,7 +152,7 @@ program
   .option("-b, --bundle", optionDescriptions.bundle, false)
   .option("-o, --output <file>", optionDescriptions.output, "bundle.js")
   .option("-m, --minify", optionDescriptions.minify, false)
-  .option("-s, --sourcemap", optionDescriptions.sourcemap, false)
+  .option("-c, --sourcemap", optionDescriptions.sourcemap, false)
   .action(async function (file, options) {
     let code = fs.readFileSync(file, "utf8");
 
@@ -231,7 +231,7 @@ program
   .description("bundle codes")
   .option("-o, --output <file>", optionDescriptions.output, "bundle.js")
   .option("-m, --minify", optionDescriptions.minify, false)
-  .option("-s, --sourcemap", optionDescriptions.sourcemap, false)
+  .option("-c, --sourcemap", optionDescriptions.sourcemap, false)
   .action(async function (file, options) {
     try {
       const stats = await bundle(file, options);

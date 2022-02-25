@@ -60,7 +60,7 @@ kaluma ports
 
 Flash code (.js file) to device.
 
-> You can flash only a single .js file to Kaluma. If you have multiple .js files, you need to bundle them with `--bundle` option or `bundle` command.
+> You can flash only a single .js file to Kaluma. If you have multiple .js files, you need to bundle them with `--bundle` option or [`bundle`](#bundle-command) command.
 
 ```sh
 kaluma flash <file> [--port <port>] [--bundle] [--no-load] [...]
@@ -70,6 +70,9 @@ kaluma flash <file> [--port <port>] [--bundle] [--no-load] [...]
 - `-p, --port <port>` option : Path to a serial port where device is connected. You can check the available serial ports using `ports` command. (e.g. `/dev/tty*` or `COM*`). Or, you can pass a port query with serial device's VID (Vendor ID) and PID (Product ID) (e.g. `@<vid>`, `@<vid>:<pid>`). (**Default:** `@2e8a` - This is VID of Respberry Pi, so automatically finds the port of Raspberry Pi Pico if you omit `--port` option)
 - `--no-load` option : Skip code loading after flash. Use this option if you don't want to run the flashed code immediately.
 - `-b, --bundle` option : Bundle .js code before flash. If you use this option, you can also use all options of [`bundle`](#bundle-command) command.
+- `-o, --output <file>` option : See [`bundle`](#bundle-command) command.
+- `-m, --minify` option : See [`bundle`](#bundle-command) command.
+- `-c, --sourcemap` option : See [`bundle`](#bundle-command) command.
 
 Examples:
 
@@ -142,7 +145,7 @@ kaluma bundle <file> [--output <file>] [--minify] [--sourcemap]
 - `<file>` : Path to the file to bundle.
 - `-o, --output <file>` option : Output path of bundled code. (**Default:** `bundle.js`).
 - `-m, --minify` option : Minify the bundled code. It can reduce the code size, but it may harden to debug.
-- `-s, --sourcemap` option : Generates source-map file.
+- `-c, --sourcemap` option : Generates source-map file.
 
 Example:
 

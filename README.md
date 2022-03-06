@@ -1,5 +1,5 @@
-![license](https://img.shields.io/github/license/kaluma-project/kaluma-cli?style=flat-square)
-![npm](https://img.shields.io/npm/v/@kaluma/cli.svg?style=flat-square)
+[![license](https://img.shields.io/github/license/kaluma-project/kaluma-cli?style=flat-square)](https://github.com/kaluma-project/kaluma-cli/blob/master/LICENSE)
+[![npm](https://img.shields.io/npm/v/@kaluma/cli.svg?style=flat-square)](https://www.npmjs.com/package/@kaluma/cli)
 
 # Kaluma CLI
 

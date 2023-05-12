@@ -115,7 +115,7 @@ program.version(config.version, '-v, --version', 'output the version number');
 
 program
   .command("shell")
-  .description("shell connect (exit: ctrl+z)")
+  .description("shell connect (type Ctrl-D to exit)")
   .option("-p, --port <port>", optionDescriptions.port, "@2e8a")
   .action(async function (options) {
     // find port
@@ -128,10 +128,10 @@ program
         console.error(err);
       } else {
         console.log(`connected to ${port}`);
-        console.log(colorName(`To exit: ctrl+z`));
+        console.log(colorName(`Type Ctrl-D to exit`));
         bind(serial, [
           {
-            keycode: 0x1a,
+            keycode: 0x04,
             callback: () => {
               process.exit(0);
             },
@@ -207,10 +207,10 @@ program
       } else {
         console.log(`connected to ${port}`);
         if (options.shell) {
-          console.log(colorName(`To exit: ctrl+z`));
+          console.log(colorName(`Type Ctrl-D to exit`));
           bind(serial, [
             {
-              keycode: 0x1a,
+              keycode: 0x04,
               callback: () => {
                 process.exit(0);
               },

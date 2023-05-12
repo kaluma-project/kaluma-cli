@@ -127,7 +127,7 @@ program
       if (err) {
         console.error(err);
       } else {
-        console.log(`connected to ${port}`);
+        console.log(`Connected to ${port}`);
         console.log(colorName(`Type Ctrl-D to exit`));
         bind(serial, [
           {
@@ -205,7 +205,7 @@ program
       if (err) {
         console.error(err);
       } else {
-        console.log(`connected to ${port}`);
+        console.log(`Connected to ${port}`);
         if (options.shell) {
           console.log(colorName(`Type Ctrl-D to exit`));
           bind(serial, [
@@ -266,7 +266,7 @@ program
       if (err) {
         console.error(err);
       } else {
-        console.log(`connected to ${port}`);
+        console.log(`Connected to ${port}`);
         await erase(serial);
         console.log("erased.");
       }
@@ -321,7 +321,7 @@ program
       if (err) {
         console.error(err);
       } else {
-        console.log(`connected to ${port}`);
+        console.log(`Connected to ${port}`);
         const bs = new BufferedSerial(serial);
         process.stdout.write(colors.grey("copying "));
         await put(bs, srcPath, dest, fileSize, () => {
@@ -363,7 +363,7 @@ program
         if (err) {
           console.error(err);
         } else {
-          console.log(`connected to ${port}`);
+          console.log(`Connected to ${port}`);
           const bs = new BufferedSerial(serial);
           const fun = `
           function (fn) {

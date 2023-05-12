@@ -115,7 +115,7 @@ program.version(config.version, '-v, --version', 'output the version number');
 
 program
   .command("shell")
-  .description("[EXPERIMENTAL] shell connect (exit: ctrl+z)")
+  .description("shell connect (exit: ctrl+z)")
   .option("-p, --port <port>", optionDescriptions.port, "@2e8a")
   .action(async function (options) {
     // find port

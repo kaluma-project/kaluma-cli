@@ -111,7 +111,7 @@ async function findPort(portOrQuery, exit) {
   return port;
 }
 
-program.version('-v, --version', 'output the version number');
+program.version(config.version, '-v, --version', 'output the version number');
 
 program
   .command("shell")

@@ -111,11 +111,11 @@ async function findPort(portOrQuery, exit) {
   return port;
 }
 
-program.version(config.version);
+program.version(config.version, '-v, --version', 'output the version number');
 
 program
   .command("shell")
-  .description("[EXPERIMENTAL] shell connect (exit: ctrl+z)")
+  .description("shell connect (type Ctrl-D to exit)")
   .option("-p, --port <port>", optionDescriptions.port, "@2e8a")
   .action(async function (options) {
     // find port
@@ -127,11 +127,11 @@ program
       if (err) {
         console.error(err);
       } else {
-        console.log(`connected to ${port}`);
-        console.log(colorName(`To exit: ctrl+z`));
+        console.log(`Connected to ${port}`);
+        console.log(colorName(`Type Ctrl-D to exit`));
         bind(serial, [
           {
-            keycode: 0x1a,
+            keycode: 0x04,
             callback: () => {
               process.exit(0);
             },
@@ -205,12 +205,12 @@ program
       if (err) {
         console.error(err);
       } else {
-        console.log(`connected to ${port}`);
+        console.log(`Connected to ${port}`);
         if (options.shell) {
-          console.log(colorName(`To exit: ctrl+z`));
+          console.log(colorName(`Type Ctrl-D to exit`));
           bind(serial, [
             {
-              keycode: 0x1a,
+              keycode: 0x04,
               callback: () => {
                 process.exit(0);
               },
@@ -266,7 +266,7 @@ program
       if (err) {
         console.error(err);
       } else {
-        console.log(`connected to ${port}`);
+        console.log(`Connected to ${port}`);
         await erase(serial);
         console.log("erased.");
       }
@@ -321,7 +321,7 @@ program
       if (err) {
         console.error(err);
       } else {
-        console.log(`connected to ${port}`);
+        console.log(`Connected to ${port}`);
         const bs = new BufferedSerial(serial);
         process.stdout.write(colors.grey("copying "));
         await put(bs, srcPath, dest, fileSize, () => {
@@ -363,7 +363,7 @@ program
         if (err) {
           console.error(err);
         } else {
-          console.log(`connected to ${port}`);
+          console.log(`Connected to ${port}`);
           const bs = new BufferedSerial(serial);
           const fun = `
           function (fn) {
